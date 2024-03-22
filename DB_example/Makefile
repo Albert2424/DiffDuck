@@ -1,6 +1,8 @@
 run:
 	unzip Database_example.zip
-	python DB_cleaning.py
+	mkdir output
+	mkdir output/figures
+	python utils/DB_cleaning.py
 
 help:
 	@echo -e '################# HELP ##################'

@@ -359,7 +359,7 @@ def drop_if_in_training(filename,df, AF=True, out_file='clean_data.csv',af_out='
 if __name__ == '__main__':
     
     # load the database
-    filename = 'database/Database_example.tsv'
+    filename = 'Database_example.tsv'
     columns = ['Ligand SMILES','Target Name','Ki (nM)','BindingDB Target Chain Sequence','PubChem CID']
     thresh = .1
     df = read_file(filename,columns)
@@ -371,7 +371,7 @@ if __name__ == '__main__':
     # seq_similarity(df) 
 
     # check if the selected target proteins are in the DD training databases
-    df2 = drop_if_in_training('database/pdbbind_match_example.csv',df) # --> clean_data.csv can be used for creating the protein PDB files (i.e. AlphaFold)
+    df2 = drop_if_in_training('pdbbind_match_example.csv',df) # --> clean_data.csv can be used for creating the protein PDB files (i.e. AlphaFold)
 
     # Sort the values of the final database in a way that kiA > kiB
     dfa,dfb = sort_AB(df2,threshold=thresh) # --> data_A.csv, data_B.csv files can be paired to run the DiffDock simulation
