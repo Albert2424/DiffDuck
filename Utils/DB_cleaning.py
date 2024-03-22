@@ -225,11 +225,11 @@ def sort_AB(df, threshold=0.1, out_A='data_A.csv', out_B='data_B.csv'):
                             'ki SEM': ki_sem[indices_B[i]],
                             'PubChem CID':pub_cid[indices_B[i]]})
 
-            r_a = pd.DataFrame(rows_a)
-            r_b = pd.DataFrame(rows_b)
+        r_a = pd.DataFrame(rows_a)
+        r_b = pd.DataFrame(rows_b)
 
-            df_out_a = pd.concat([df_out_a if not df_out_a.empty else None, r_a], ignore_index=True)
-            df_out_b = pd.concat([df_out_b if not df_out_b.empty else None, r_b], ignore_index=True)
+        df_out_a = pd.concat([df_out_a if not df_out_a.empty else None, r_a], ignore_index=True)
+        df_out_b = pd.concat([df_out_b if not df_out_b.empty else None, r_b], ignore_index=True)
 
     df_out_a.to_csv(f'output/{out_A}')
     df_out_b.to_csv(f'output/{out_B}')
@@ -375,6 +375,5 @@ if __name__ == '__main__':
 
     # Sort the values of the final database in a way that kiA > kiB
     dfa,dfb = sort_AB(df2,threshold=thresh) # --> data_A.csv, data_B.csv files can be paired to run the DiffDock simulation
-
     # plot the final database
     plot_ab(dfa,dfb, counts_graph=True,threshold=thresh)
