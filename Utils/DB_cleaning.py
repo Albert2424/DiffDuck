@@ -174,7 +174,7 @@ def sort_AB(df, threshold=0.1, out_A='data_A.csv', out_B='data_B.csv'):
     """
 
     # create the new dataframes where proteins will be sorted by their affinity with the same ligand
-    columns = ['Prot ID','Sequence','SMILES','Ki (nM)','ki SEM']
+    columns = ['Prot ID','Sequence','SMILES','Ki (nM)','ki SEM','PubChem CID']
     df_out_a = pd.DataFrame(columns=columns)
     df_out_b = pd.DataFrame(columns=columns)
 
@@ -192,6 +192,7 @@ def sort_AB(df, threshold=0.1, out_A='data_A.csv', out_B='data_B.csv'):
         prot = list(slice['BindingDB Target Chain Sequence'])
         ki = list(slice['ki_mean'])
         ki_sem = list(slice['ki_sem'])
+        pub_cid = list(slice['PubChem CID'])
 
 
         mask = ratios < threshold # select only the proteins that have a ratio lower than threshold
@@ -214,13 +215,15 @@ def sort_AB(df, threshold=0.1, out_A='data_A.csv', out_B='data_B.csv'):
                             'SMILES':lig,
                             'Ki (nM)':ki[indices_A[i]],
                             'Sequence':prot[indices_A[i]],
-                            'ki SEM': ki_sem[indices_A[i]]})
+                            'ki SEM': ki_sem[indices_A[i]],
+                            'PubChem CID':pub_cid[indices_A[i]]})
 
             rows_b.append({'Prot ID':id_slice[indices_B[i]],
                             'SMILES':lig,
                             'Ki (nM)':ki[indices_B[i]],
                             'Sequence':prot[indices_B[i]],
-                            'ki SEM': ki_sem[indices_B[i]]})
+                            'ki SEM': ki_sem[indices_B[i]],
+                            'PubChem CID':pub_cid[indices_B[i]]})
 
             r_a = pd.DataFrame(rows_a)
             r_b = pd.DataFrame(rows_b)
@@ -356,7 +359,7 @@ def drop_if_in_training(filename,df, AF=True, out_file='clean_data.csv',af_out='
 if __name__ == '__main__':
     
     # load the database
-    filename = 'DB_example/Database_example.tsv'
+    filename = 'database/Database_example.tsv'
     columns = ['Ligand SMILES','Target Name','Ki (nM)','BindingDB Target Chain Sequence','PubChem CID']
     thresh = .1
     df = read_file(filename,columns)
@@ -368,7 +371,7 @@ if __name__ == '__main__':
     # seq_similarity(df) 
 
     # check if the selected target proteins are in the DD training databases
-    df2 = drop_if_in_training('DB_example/pdbbind_match_example.csv',df) # --> clean_data.csv
+    df2 = drop_if_in_training('database/pdbbind_match_example.csv',df) # --> clean_data.csv
 
     # Sort the values of the final database in a way that kiA > kiB
     dfa,dfb = sort_AB(df2,threshold=thresh) # --> data_A.csv, data_B.csv
