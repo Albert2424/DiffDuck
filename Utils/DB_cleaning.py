@@ -212,16 +212,16 @@ def sort_AB(df, threshold=0.1, out_A='data_A.csv', out_B='data_B.csv'):
             #     df_out_a[]
 
             rows_a.append({'Prot ID':id_slice[indices_A[i]],
+                            'Sequence':prot[indices_A[i]],
                             'SMILES':lig,
                             'Ki (nM)':ki[indices_A[i]],
-                            'Sequence':prot[indices_A[i]],
                             'ki SEM': ki_sem[indices_A[i]],
                             'PubChem CID':pub_cid[indices_A[i]]})
 
             rows_b.append({'Prot ID':id_slice[indices_B[i]],
+                            'Sequence':prot[indices_B[i]],
                             'SMILES':lig,
                             'Ki (nM)':ki[indices_B[i]],
-                            'Sequence':prot[indices_B[i]],
                             'ki SEM': ki_sem[indices_B[i]],
                             'PubChem CID':pub_cid[indices_B[i]]})
 
@@ -365,16 +365,16 @@ if __name__ == '__main__':
     df = read_file(filename,columns)
     
     #select the useful rows of the database
-    df = clean_df(df,n_atoms=0) # --> data_prot.csv
+    df = clean_df(df,n_atoms=0) # --> data_prot.csv can be used for searching in the training database (PDBBind) the matching sequences.
 
     # Print the similarity of the chains among each other for every ligand
     # seq_similarity(df) 
 
     # check if the selected target proteins are in the DD training databases
-    df2 = drop_if_in_training('database/pdbbind_match_example.csv',df) # --> clean_data.csv
+    df2 = drop_if_in_training('database/pdbbind_match_example.csv',df) # --> clean_data.csv can be used for creating the protein PDB files (i.e. AlphaFold)
 
     # Sort the values of the final database in a way that kiA > kiB
-    dfa,dfb = sort_AB(df2,threshold=thresh) # --> data_A.csv, data_B.csv
+    dfa,dfb = sort_AB(df2,threshold=thresh) # --> data_A.csv, data_B.csv files can be paired to run the DiffDock simulation
 
     # plot the final database
     plot_ab(dfa,dfb, counts_graph=True,threshold=thresh)
