@@ -23,10 +23,7 @@ else
 fi
 
 # Check if /results directory exists
-if [ -d "DD" ]; then
-    # If it exists, erase its contents
-    pass
-else
+if [ ! -d "DD" ]; then
     # If it doesn't exist, create it
     mkdir DD
 fi
