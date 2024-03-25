@@ -236,89 +236,6 @@ def sort_AB(df, threshold=0.1, out_A='data_A.csv', out_B='data_B.csv'):
     print(f'*** {out_A} and {out_B} successfully generated.')
     
     return df_out_a,df_out_b
-    
-
-def plot_ab(dfa,dfb, threshold=0.1, counts_graph=False, filename=None):
-
-    """
-    This function plots the dataframes dfa and dfb, where dfa contains the affinities of proteins A with the same ligand, and dfb contains the affinities of proteins
-    B with the same ligand.
-
-    Args:
-        dfa (pd.DataFrame): The dataframe containing the affinities of proteins A with the same ligand.
-        dfb (pd.DataFrame): The dataframe containing the affinities of proteins B with the same ligand.
-        threshold (float, optional): The threshold used for sorting. Defaults to 0.1.
-        counts_graph (bool, optional): If True, a histogram of the ligand counts is plotted alongside the error bars. Defaults to False.
-        filename (str, optional): The name of the file containing the DD guess. Defaults to None.
-
-    Returns:
-        None
-
-    """
-
-    x = np.array(dfa['Ki (nM)'])
-    y = np.array(dfb['Ki (nM)'])
-
-    err_x = np.array(dfa['ki SEM'])/x
-    err_y = np.array(dfb['ki SEM'])/y
-
-    mask_x = err_x != 0
-    mask_y = err_y!= 0
-
-    mask = mask_x | mask_y
-    err_x = err_x[mask]
-    err_y = err_y[mask]
-
-    x_err = x[mask]
-    y_err = y[mask]
-
-    c_list = cm.viridis(np.linspace(0, 1, 4))
-
-    if counts_graph:
-        un_lig, counts = np.unique(df['SMILES'],return_counts=True)
-        col = []
-
-        for lig in dfa['SMILES']:
-            col.append(counts[list(un_lig).index(lig)])
-
-    else:
-        col = pd.read_csv(filename)
-        col = list(col['0'])
-
-    x = np.log(x)
-    y = np.log(y)
-
-    x_err = np.log(x_err)
-    y_err = np.log(y_err)
-
-    x_values = np.linspace(min(min(x),min(y)), max(max(x),max(y)), 100)
-
-    plt.figure(figsize=(20,15))
-    if counts_graph:
-        plt.errorbar(x_err, y_err, yerr=err_y, xerr=err_x, ecolor='r', capsize=5,fmt='none', zorder=0)
-        plt.scatter(x,y, c=col,cmap='viridis')
-    else:
-        plt.errorbar(x_err, y_err, yerr=err_y, xerr=err_x, ecolor='r', capsize=5,fmt='none', zorder=0)
-        plt.scatter(x,y, c=col,cmap='PiYG') # 'RdYlGn'
-
-    plt.plot(x_values, x_values, label='$log(K_i^A) = log(K_i^B)$', color=c_list[0])
-    plt.plot(x_values, x_values+np.log(threshold), color=c_list[1] , label=f'$log(K_i^B/K_i^A)$ = {threshold}')
-    
-    plt.xlabel(fr'$log(K_i^A)$', fontsize=35)
-    plt.ylabel(fr'$log(K_i^B)$', fontsize=35)
-    plt.legend(fontsize=35)
-    plt.xticks(fontsize=35)
-    plt.yticks(fontsize=35)
-    cbar = plt.colorbar()
-    cbar.ax.tick_params(labelsize=35)
-    if counts_graph:
-        cbar.set_label('Ligand counts', fontsize=35)
-    else:
-        cbar.set_label('DiffDock guess', fontsize=35)
-    plt.tight_layout()
-    plt.savefig('output/figures/ka_kb.pdf')
-    plt.show()
-
 
 def drop_if_in_training(filename,df, AF=True, out_file='clean_data.csv',af_out='AF_input.csv'):
     """
@@ -354,7 +271,6 @@ def drop_if_in_training(filename,df, AF=True, out_file='clean_data.csv',af_out='
     print(f'** Removed proteins included in training of DD. Data is in {out_file}')
 
     return df
-    
 
 if __name__ == '__main__':
     
@@ -375,5 +291,4 @@ if __name__ == '__main__':
 
     # Sort the values of the final database in a way that kiA > kiB
     dfa,dfb = sort_AB(df2,threshold=thresh) # --> data_A.csv, data_B.csv files can be paired to run the DiffDock simulation
-    # plot the final database
-    plot_ab(dfa,dfb, counts_graph=True,threshold=thresh)
+   
