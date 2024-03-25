@@ -22,6 +22,16 @@ else
     mkdir output/figures
 fi
 
+# Check if /results directory exists
+if [ -d "DD" ]; then
+    # If it exists, erase its contents
+    pass
+else
+    # If it doesn't exist, create it
+    mkdir DD
+fi
+
+
 # Iterate over each zip file found and unzip it
 for zip_file in $(find "$directory" -type f -name "*.zip")
 do

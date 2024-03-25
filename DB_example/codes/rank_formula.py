@@ -71,11 +71,22 @@ def plot_lia_rat(dfa,dfb,pred_df,out):
     x = np.array(pred_df['Liability'])
     y = np.log10(np.array(dfa['Ki (nM)'])/np.array(dfb['Ki (nM)']))
     
-    plt.figure()
-    plt.scatter(x,y)
-    plt.xlabel('Liability')
-    plt.ylabel(fr'$log(K_i^A/K_i^B)$')
-    plt.savefig(f"output/figures/{out.split('.')[0]}.pdf")
+    col = np.array(df['Prediction'])
+    correct = len(col[col==0])
+    failed = len(col)-correct
+
+    plt.figure(figsize=(20,15))
+    a = plt.scatter(x, y, c=col, cmap='PiYG_r',s=35)
+    plt.xlabel('Liability', fontsize=35)
+    plt.ylabel(fr'$log(K_i^A/K_i^B)$', fontsize=35)
+    plt.legend(fontsize=35,markerscale=4.,handles=a.legend_elements()[0],
+              labels=[f'Guessed: {correct}',f'Failed: {failed}'], ncol = 2,
+              bbox_to_anchor=(0.5, 1.05),fancybox=True, shadow=True, loc='upper left')
+    
+    plt.xticks(fontsize=35)
+    plt.yticks(fontsize=35)
+    plt.tight_layout()
+    plt.savefig(f"output/figures/{out.split('.')[0]}_lia.pdf")
     # plt.show()
 
 
