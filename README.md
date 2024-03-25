@@ -21,4 +21,4 @@ First of all clone the direcotry containing all the necessary files by doing:
 ```bash
 git clone https://github.com/Albert2424/DiffDuck/tree/master/DB_example
 ```
-Then move to the downloaded directory and use `make run` to generate the output directory which includes the figures.
+Then move to the downloaded directory and use `source run.sh` to generate the output directory which includes both the figures and the output files.
