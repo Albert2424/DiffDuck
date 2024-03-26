@@ -18,15 +18,21 @@ def prediction(df,out_file):
                                 'ID', 'Confidence', 'Chain(A=0)(B=1)'
 
     Returns:
-        pd.DataFrame: A pandas dataframe containing the chain ID, prediction, and liability of the prediction.
+        pd.DataFrame: A pandas dataframe containing the chain ID, prediction, and Reliability of the prediction.
     """
 
-    pred_df = pd.DataFrame(columns=['ID','Prediction', 'Liability'])
+    pred_df = pd.DataFrame(columns=['ID','Prediction', 'Reliability'])
     
     for i in np.unique(df['ID']):
 
         slice = df[df['ID'] == i].copy()
+        samples = len(slice)
+        slice = slice[slice['Confidence'] != -1000] #exclude failed attempts
+        # print(len(slice))
         slice = slice.reset_index(drop=True)
+
+        
+
         # print(slice)
         ci = slice['Confidence']
         c_max = ci[0]
@@ -41,12 +47,12 @@ def prediction(df,out_file):
 
         pred_1 = np.sum(np.array(slice['Chain(A=0)(B=1)'])*np.array(slice['Normal conf']))
         pred_1 = pred_1/len(slice) 
-
+        # if slice.shape[0] > samples*2/3:
         if pred_1 > 0.5:
-            pred_df = pd.concat([pred_df if not pred_df.empty else None, pd.DataFrame([{'ID':i,'Prediction':1,'Liability':round(pred_1*100,2)}])], ignore_index=True)
+            pred_df = pd.concat([pred_df if not pred_df.empty else None, pd.DataFrame([{'ID':i,'Prediction':1,'Reliability':round(pred_1*100,2)}])], ignore_index=True)
             # print(f'The prediction is chain 1 with certainty of {pred_1*100:.2f}%')
         else:
-            pred_df = pd.concat([pred_df if not pred_df.empty else None, pd.DataFrame([{'ID':i,'Prediction':0,'Liability':round((1-pred_1)*100,2)}])], ignore_index=True)
+            pred_df = pd.concat([pred_df if not pred_df.empty else None, pd.DataFrame([{'ID':i,'Prediction':0,'Reliability':round((1-pred_1)*100,2)}])], ignore_index=True)
             # print(f'The prediction is chain 0 with certainty of {(1-pred_1)*100:.2f}%')
         # print(pred_1)
 
@@ -54,7 +60,7 @@ def prediction(df,out_file):
     return pred_df
 
 
-def plot_lia_rat(dfa,dfb,pred_df,out):
+def plot_rel_rat(dfa,dfb,pred_df,out):
     import matplotlib.pyplot as plt
 
     #if DD has failed there will be different values at the dfa and dfb so we must avoid them
@@ -68,16 +74,17 @@ def plot_lia_rat(dfa,dfb,pred_df,out):
             dfb = dfb.drop(i)
 
     # pred_df = pred_df[pred_df['Prediction'] == 1]
-    x = np.array(pred_df['Liability'])
+    x = np.array(pred_df['Reliability'])
     y = np.log10(np.array(dfa['Ki (nM)'])/np.array(dfb['Ki (nM)']))
     
-    col = np.array(df['Prediction'])
-    correct = len(col[col==0])
+    col = np.array(pred_df['Prediction'],dtype=float)
+    col[col==0] = 0.20
+    correct = len(col[col==0.2])
     failed = len(col)-correct
 
     plt.figure(figsize=(20,15))
-    a = plt.scatter(x, y, c=col, cmap='PiYG_r',s=35)
-    plt.xlabel('Liability', fontsize=35)
+    a = plt.scatter(x, y, c=col, cmap='PiYG_r',s=35,clim=(0, 1))
+    plt.xlabel('Reliability', fontsize=35)
     plt.ylabel(fr'$log(K_i^A/K_i^B)$', fontsize=35)
     plt.legend(fontsize=35,markerscale=4.,handles=a.legend_elements()[0],
               labels=[f'Guessed: {correct}',f'Failed: {failed}'], ncol = 2,
@@ -86,7 +93,7 @@ def plot_lia_rat(dfa,dfb,pred_df,out):
     plt.xticks(fontsize=35)
     plt.yticks(fontsize=35)
     plt.tight_layout()
-    plt.savefig(f"output/figures/{out.split('.')[0]}_lia.pdf")
+    plt.savefig(f"output/figures/{out.split('.')[0]}_rel.pdf")
     # plt.show()
 
 
@@ -99,4 +106,4 @@ if __name__ == '__main__':
     dfb = pd.read_csv('output/data_B.csv')
 
     df = prediction(df,args.output_file)
-    plot_lia_rat(dfa,dfb,df,args.output_file)
+    plot_rel_rat(dfa,dfb,df,args.output_file)
