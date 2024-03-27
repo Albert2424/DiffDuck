@@ -15,24 +15,19 @@ args = parser.parse_args()
 def plot_ab_count(dfa,dfb, threshold=0.1):
 
     """
-    This function plots the dataframes dfa and dfb, where dfa contains the affinities of proteins A with the same ligand, and dfb contains the affinities of proteins
-    B with the same ligand.
+    This function plots the logarithm of the affinities from dataframes dfa and dfb and uses the number of times that a ligand appears as the coloring,
+    where dfa contains the affinities of proteins A with the same ligand, and dfb contains the affinities of proteins B with the same ligand.
 
     Args:
         dfa (pd.DataFrame): The dataframe containing the affinities of proteins A with the same ligand.
         dfb (pd.DataFrame): The dataframe containing the affinities of proteins B with the same ligand.
         threshold (float, optional): The threshold used for sorting. Defaults to 0.1.
-        counts_graph (bool, optional): If True, a histogram of the ligand counts is plotted alongside the error bars. Defaults to False.
-        filename (str, optional): The name of the file containing the DD guess. Defaults to None.
 
     Returns:
-        None
+        None. Generates the plot of log(ki_A) vs log(ki_B) and saves it as ka_kb_count.pdf 
 
     """
 
-    
-
-    
     un_lig, counts = np.unique(dfa['SMILES'],return_counts=True)
     col = []
 
@@ -92,15 +87,14 @@ def plot_ab_count(dfa,dfb, threshold=0.1):
 def plot_bool_res(dfa,dfb, threshold=0.1, filename=None):
 
     """
-    This function plots the dataframes dfa and dfb, where dfa contains the affinities of proteins A with the same ligand, and dfb contains the affinities of proteins
-    B with the same ligand.
+    This function plots the logarithm of the affinities from dataframes dfa and dfb and uses the DiffDock prediction as the coloring (correct if it chose A and incorrect if B),
+    where dfa contains the affinities of proteins A with the same ligand, and dfb contains the affinities of proteins B with the same ligand.
 
     Args:
         dfa (pd.DataFrame): The dataframe containing the affinities of proteins A with the same ligand.
         dfb (pd.DataFrame): The dataframe containing the affinities of proteins B with the same ligand.
         threshold (float, optional): The threshold used for sorting. Defaults to 0.1.
-        counts_graph (bool, optional): If True, a histogram of the ligand counts is plotted alongside the error bars. Defaults to False.
-        filename (str, optional): The name of the file containing the DD guess. Defaults to None.
+        filename (str, optional): The name of the file containing the DiffDock guess. Defaults to None.
 
     Returns:
         None
@@ -181,15 +175,14 @@ def plot_bool_res(dfa,dfb, threshold=0.1, filename=None):
 def plot_rel_res(dfa,dfb, threshold=0.1, filename=None):
 
     """
-    This function plots the dataframes dfa and dfb, where dfa contains the affinities of proteins A with the same ligand, and dfb contains the affinities of proteins
-    B with the same ligand.
+    This function plots the logarithm of the affinities from dataframes dfa and dfb and uses the reliability of the DiffDock prediction as the coloring
+    where dfa contains the affinities of proteins A with the same ligand, and dfb contains the affinities of proteins B with the same ligand.
 
     Args:
         dfa (pd.DataFrame): The dataframe containing the affinities of proteins A with the same ligand.
         dfb (pd.DataFrame): The dataframe containing the affinities of proteins B with the same ligand.
         threshold (float, optional): The threshold used for sorting. Defaults to 0.1.
-        counts_graph (bool, optional): If True, a histogram of the ligand counts is plotted alongside the error bars. Defaults to False.
-        filename (str, optional): The name of the file containing the DD guess. Defaults to None.
+        filename (str, optional): The name of the file containing the DiffDock guess. Defaults to None.
 
     Returns:
         None
@@ -266,7 +259,7 @@ def plot_rel_res(dfa,dfb, threshold=0.1, filename=None):
     # plt.show()
 
 if __name__ == '__main__':
-    print(f'Plotting {args.predictions}')
+    print(f'Plotting {args.predictions}...')
     dfa = pd.read_csv(args.data_a)
     dfb = pd.read_csv(args.data_b)
     thresh = .1

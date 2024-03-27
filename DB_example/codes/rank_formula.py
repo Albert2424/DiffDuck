@@ -9,11 +9,11 @@ args = parser.parse_args()
 
 def prediction(df,out_file):
     """
-    This function takes a pandas dataframe as input and predicts the chain in which the ligand has attached.
-    The prediction is based on the confidence scores of each prediction chain.
+    This function takes a pandas dataframe as input and predicts the chain in which the ligand has attached based on all the samples from DiffDock.
+    The prediction is based on the confidence scores of every sample and the prediction per sample od DiffDock.
 
     Args:
-        df (pd.DataFrame): A pandas dataframe containing the prediction results and customer information.
+        df (pd.DataFrame): A pandas dataframe containing the prediction results and the chain chose per sample.
                             The columns of the dataframe must include:
                                 'ID', 'Confidence', 'Chain(A=0)(B=1)'
 

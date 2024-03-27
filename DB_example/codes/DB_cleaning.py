@@ -16,7 +16,7 @@ def read_file(file_path,columns,display_col_names=False):
     Args:
         file_path (str): The path to the file to be read.
         columns (List[str]): A list of the columns from the file that the user wants to extract.
-        display_col_names (bool): Whether to display the column names. Default
+        display_col_names (bool): Whether to print the column names. Default is False.
         
     Returns:
         pandas.DataFrame: A pandas dataframe containing the selected data from the file.
@@ -38,8 +38,8 @@ def clean_df(df, n_atoms=8, seq_lim=500, AF=False,out_file='data_prot.csv', af_o
     """
     Cleans the dataframe by: 
             --> Removing rows that have Nan values
-            --> Removing rows that have Ki values including > symbol (i.e. >100000)
-            --> Removing rows that contain ligands smaller than n_atoms
+            --> Removing rows that have Ki values including ">" symbol (i.e. >100000)
+            --> Removing rows that contain ligands smaller than n_atoms (without counting H atoms)
             --> Removing rows that contain Ki = 0  
             --> Adding a column with the mean value of Ki for every lig-to-protein interaction
             --> Adding a column with the standard deviation of the mean Ki for every lig-to-protein interaction (if it is only one value then it is set to 0)
@@ -50,7 +50,7 @@ def clean_df(df, n_atoms=8, seq_lim=500, AF=False,out_file='data_prot.csv', af_o
         df (pandas.DataFrame): The dataframe to be cleaned.
         n_atoms (int, optional): The minimum number of atoms in a ligand for it to be included in the dataframe. Defaults to 8.
         seq_lim (int, optional): the maximum fasta length for a protein to be selected. Defaults to 500.
-        AF (bool): Whether to create or not an input file for Alphafold. Default is False.
+        AF (bool): Whether to create or not an input file for AlphaFold. Default is False.
 
     Returns:
         pandas.DataFrame: The cleaned dataframe.
@@ -97,7 +97,7 @@ def clean_df(df, n_atoms=8, seq_lim=500, AF=False,out_file='data_prot.csv', af_o
     
     df['SMILES'] = smiles
 
-    # Cal treure els que tinguin ki=0?
+    # Remove ki=0 values
     df = df[df['ki_mean']!= 0]
     df = df.drop_duplicates()
     df = df.reset_index(drop=True)
@@ -161,16 +161,17 @@ def seq_similarity(df):
 def sort_AB(df, threshold=0.1, out_A='data_A.csv', out_B='data_B.csv'):
 
     """
-    This function sorts the dataframe by the affinity of the proteins with the same ligand.
+    This function sorts the dataframe by the affinity of the proteins with the same ligand such as Ki_A > Ki_B.
 
     Args:
         df (pd.DataFrame): The dataframe to be sorted.
-        threshold (float, optional): The threshold for sorting. Defaults to 0.1.
+        threshold (float, optional): The threshold for considering a pair of affinities ( Ki_B/Ki_A must be lower
+        than the threshold ). Defaults to 0.1.
 
     Returns:
         Tuple[pd.DataFrame, pd.DataFrame]: A tuple containing two dataframes, the rows of this dataframes can
         be paired by index to obtain two proteins that have different affinities with the same ligand. The data
-        is sorted such as the affinity of the ligan with prot A is always higher than the one for B.
+        is sorted such as the affinity of the ligand with prot A is always higher than the one for B.
     """
 
     # create the new dataframes where proteins will be sorted by their affinity with the same ligand
@@ -239,12 +240,14 @@ def sort_AB(df, threshold=0.1, out_A='data_A.csv', out_B='data_B.csv'):
 
 def drop_if_in_training(filename,df, AF=True, out_file='clean_data.csv',af_out='AF_input.csv'):
     """
-    This function removes the proteins that are included in the training of Diffusion Distance from the dataframe.
+    This function removes the proteins that are included in the training of DiffDock (PDBBind) from the dataframe.
 
     Args:
         filename (str): The path to the file containing the proteins that were in the training data.
         df (pd.DataFrame): The dataframe containing the protein sequences and their affinities.
         AF (bool): Whether to create or not an input file for Alphafold. Default is True.
+        out_file (str, optional): The name of the output file. Defaults to 'clean_data.csv'.
+        af_out (str, optional): The name of the output file for AlphaFold. Defaults to 'AF_input.csv'.
 
     Returns:
         pd.DataFrame: The dataframe without the proteins included in the training.
@@ -268,7 +271,7 @@ def drop_if_in_training(filename,df, AF=True, out_file='clean_data.csv',af_out='
 
     df.to_csv(f'output/{out_file}')
 
-    print(f'** Removed proteins included in training of DD. Data is in {out_file}')
+    print(f'** Removed proteins included in the training of DiffDock. Data is in {out_file}')
 
     return df
 
@@ -281,7 +284,7 @@ if __name__ == '__main__':
     df = read_file(filename,columns)
     
     #select the useful rows of the database
-    df = clean_df(df,n_atoms=0) # --> data_prot.csv can be used for searching in the training database (PDBBind) the matching sequences.
+    df = clean_df(df,n_atoms=8) # --> data_prot.csv can be used for searching in the training database (PDBBind) the matching sequences.
 
     # Print the similarity of the chains among each other for every ligand
     # seq_similarity(df) 
