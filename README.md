@@ -16,12 +16,16 @@ This repository contains all the necessary files to run DiffDuck simulations alo
 
 ## Reproduce figures
 
-First of all clone the directory containing all the necessary files by doing:
+First clone the directory containing all the necessary files by doing:
 
 ```bash
 git clone https://github.com/Albert2424/DiffDuck/tree/master/DB_example
 ```
-Then move to the downloaded directory and use `source run.sh` to generate the output directory which includes both the figures and the output files. The code is split into three main parts. The first part consists of cleaning the selected database (in the example is `Database_example.zip` which is automatically unzipped when you run the code). After running `DB_cleanning.py` from the `/codes` directory, the following files are generated inside the `/output` directory:
+Then move to the downloaded directory and use `source run.sh` to generate the output directory which includes both the figures and the output files.
+
+### How does this code work?
+
+The code is split into three main parts. The first part consists of cleaning the selected database (in the example is `Database_example.zip` which is automatically unzipped when you run the code). After running `DB_cleanning.py` from the `/codes` directory, the following files are generated inside the `/output` directory:
 
 
 1. `AF_input.csv`       --> In case you don't have the PDB structure of the studied proteins, it may be useful to run a folding program (such as AlphaFold) to obtain them. This file is a valid input for AlphaFold, DeepFold...
