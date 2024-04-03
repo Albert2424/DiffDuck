@@ -9,11 +9,11 @@ args = parser.parse_args()
 
 def prediction(df,out_file):
     """
-    This function takes a pandas dataframe as input and predicts the chain in which the ligand has attached based on all the samples from DiffDock.
-    The prediction is based on the confidence scores of every sample and the prediction per sample od DiffDock.
+    This function takes a pandas dataframe as input and predicts the chain in which the ligand has attached.
+    The prediction is based on the confidence scores of each prediction chain.
 
     Args:
-        df (pd.DataFrame): A pandas dataframe containing the prediction results and the chain chose per sample.
+        df (pd.DataFrame): A pandas dataframe containing the prediction results and customer information.
                             The columns of the dataframe must include:
                                 'ID', 'Confidence', 'Chain(A=0)(B=1)'
 
@@ -81,6 +81,10 @@ def plot_rel_rat(dfa,dfb,pred_df,out):
     col[col==0] = 0.20
     correct = len(col[col==0.2])
     failed = len(col)-correct
+
+    if len(y) != len(col):
+        print(f'{out.split(".")[0]}_rel.pdf_kakb_rel.pdf will not be generated since the prediction file and the data_A and data_B are not corresponding')
+        return
 
     plt.figure(figsize=(20,15))
     a = plt.scatter(x, y, c=col, cmap='PiYG_r',s=35,clim=(0, 1))
