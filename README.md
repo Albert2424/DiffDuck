@@ -79,8 +79,8 @@ Now everything is almost ready to run the DiffDock simulations. First of all an 
 
 |complex_name | chainA | chainB | SMILES |
 |-------------|--------|--------|--------|
-|86_84_449241.0  |/home/ramon/juan/structures/working_structures/86.pdb |/home/ramon/juan/structures/working_structures/84.pdb |Brc1ccc(\C=C\CNCCNS(=O)(=O)c2cccc3cnccc23)cc1 |
-|169_168_5362440.0|/home/ramon/juan/structures/working_structures/169.pdb |/home/ramon/juan/structures/working_structures/168.pdb |CC(C)(C)NC(=O)[C@@H]1CN(Cc2cccnc2)CCN1C[C@@H](O)C[C@@H](Cc1ccccc1)C(=O)N[C@@H]1[C@H](O)Cc2ccccc12 |
+|86_84_449241.0  |/structures/86.pdb |/home/ramon/juan/structures/working_structures/84.pdb |Brc1ccc(\C=C\CNCCNS(=O)(=O)c2cccc3cnccc23)cc1 |
+|169_168_5362440.0|/structures/169.pdb |/home/ramon/juan/structures/working_structures/168.pdb |CC(C)(C)NC(=O)[C@@H]1CN(Cc2cccnc2)CCN1C[C@@H](O)C[C@@H](Cc1ccccc1)C(=O)N[C@@H]1[C@H](O)Cc2ccccc12 |
 |... |... |... |... |
 
 
