@@ -28,7 +28,7 @@ Then move to the downloaded directory and use `source run.sh` to generate the ou
 The code is split into three main parts. The first part consists of cleaning the selected database (in the example is `Database_example.zip` which is automatically unzipped when you run the code). After running `DB_cleanning.py` from the `/codes` directory, the following files are generated inside the `/output` directory:
 
 
-1. `AF_input.csv`       --> In case you don't have the PDB structure of the studied proteins, it may be useful to run a folding program (such as AlphaFold) to obtain them. This file is a valid input for AlphaFold, DeepFold...
+1. `AF_input.csv`       --> In case you don't have the PDB structure of the studied proteins, it may be useful to run a structure predictor program (such as AlphaFold) to obtain them. This file is a valid input for Colabfold_batch (AlphaFold, DeepFold).
 
 ||id   |sequence                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 |------|-----|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -45,7 +45,7 @@ The code is split into three main parts. The first part consists of cleaning the
 |1     |AVPFVEDWDLVQTLGEGAYGEVQLAVNRVTEEAVAVKIVDMKRAVDCPENIKKEICINKMLNHENVVKFYGHRREGNIQYLFLEYCSGGELFDRIEPDIGMPEPDAQRFFHQLMAGVVYLHGIGITHRDIKPENLLLDERDNLKISDFGLATVFRYNNRERLLNKMCGTLPYVAPELLKRREFHAEPVDVWSCGIVLTAMLAGELPWDQPSDSCQEYSDWKEKKTYLNPWKKIDSAPLALLHKILVENPSARITIPDIKKDRWYNKPLKKGAKRPRVTS|10003686.0                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |5.79                |0.0                  |COc1cc(ccc1[N+]([O-])=O)-c1ccc2c(Nc3ccc(CC(=O)N(C)C)cc3NC2=O)c1                                                                                                                                |0  |
 |...|...|...|...|...|...|...|
 
-Here the code needs a file containing the result of a blast in the _PDBBind_ database to exclude said proteins. In case the user doesn't want to exclude said proteins, just comment the `drop_if_in_training('pdbbind_match_example.csv',df)` line of the `DB_cleanning.py` code. In the other case, a file with a format like _pdbbind_match_example.csv_: 
+Here the code needs a file of the result from BLASTp, comparing the aminoacid sequence of the proteins with the _PDB_ database. The proteins with a identity score of 100% with the proteins in the _PDBBind_ database will be excluded. To compere the result from the BLAST, is necesary to download the _Hit table(csv)_ results and run `compare_PDBbind.sh`. In order to work, this code needs the PDB codes from the _PDBBind_ database `2020_index.lst`, a list you can donwload from the database website. In case the user doesn't want to exclude said proteins, just comment the `drop_if_in_training('pdbbind_match_example.csv',df)` line of the `DB_cleanning.py` code. In the other case, a file with a format like _pdbbind_match_example.csv_: 
 
 
 |0  |
@@ -73,11 +73,25 @@ where the only column it contains are the indices of the rows to drop will be ne
 
 5. `clean_data.csv`     --> This file will only appear if proteins from the training database have been excluded. Is the same file as _data_prot.csv_ but excluding the proteins.
 
-Now everything is almost ready to run the DiffDock simulations. First of all an input for DiffDock is generated using ... \[JUAN ESCRIU AQUESTA PART :)\]
+Now everything is almost ready to run the DiffDock simulations. First of all an input for DiffDock is generated using `input_DD.py`, the code needs the files `data_A.csv` and `data_B.csv` and a directory with all the predicted structures. The output file will be:
 
-... The following file is generated after the DiffDock simulations:
+6. `input_DD.csv` 
 
-6. `combined.csv` --> A file containing the ID, confidence and chain to which every sample has been attached.
+|complex_name | chainA | chainB | SMILES |
+|-------------|--------|--------|--------|
+|86_84_449241.0  |/structures/86.pdb |/home/ramon/juan/structures/working_structures/84.pdb |Brc1ccc(\C=C\CNCCNS(=O)(=O)c2cccc3cnccc23)cc1 |
+|169_168_5362440.0|/structures/169.pdb |/home/ramon/juan/structures/working_structures/168.pdb |CC(C)(C)NC(=O)[C@@H]1CN(Cc2cccnc2)CCN1C[C@@H](O)C[C@@H](Cc1ccccc1)C(=O)N[C@@H]1[C@H](O)Cc2ccccc12 |
+|... |... |... |... |
+
+
+Once this file is done Diffdock is ready to run.
+
+```bash
+sbatch run_DD.sh
+```
+All the necesary _pdb_ files will be generated and when Diffdock ends, the results will be organized by folders and the following file will be created and stored in `clean_results´.
+
+7. `combined.csv` --> A file containing the ID, confidence and chain to which every sample has been attached.
 
 ||ID   |Confidence                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |Chain(A=0)(B=1)     |
 |------|-----|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------|
