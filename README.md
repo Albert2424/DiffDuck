@@ -21,7 +21,9 @@ First clone the directory containing all the necessary files by doing:
 ```bash
 git clone https://github.com/Albert2424/DiffDuck/tree/master/DB_example
 ```
-Then move to the downloaded directory and use `source run.sh` to generate the output directory which includes both the figures and the output files.
+Then move to the downloaded directory and use `source run.sh` to generate the output directory which includes both the figures and the output files. 
+
+**_NOTE:_** to reproduce the figures the `fails_solo.csv` file is needed. If this feature is not needed just change the `f` variable in `run.sh` for `None` and run the program. 
 
 ### How does this code work?
 
