@@ -52,26 +52,38 @@ def lig_gc(lig_xyz):
 def get_std_prot(dir,th=5):
 
     conf = get_confidence(dir)
-    std_sim_old = np.array([0,0,0])
+    std_sim_old = 0
     gc_list = []
 
     for n,c in enumerate(conf):
-        file = f'rank{n+1}_confidence{c}.pdb'
-        lig = md.load(dir+file)
+
+        # avoid problems with confidence = 0.00 or -0.00
+        if abs(float(c)) == 0:
+            try:
+                file = f"rank{n+1}_confidence0.00.pdb"
+                lig = md.load(dir + file)
+            except OSError:
+                file = f"rank{n+1}_confidence-0.00.pdb"
+                lig = md.load(dir + file)
+
+        else:
+            file = f"rank{n+1}_confidence{c}.pdb"
+            lig = md.load(dir + file)
+
         lig_xyz = lig.xyz
         if np.isnan(lig_xyz).any():
             print(f'Coordinates of {file} may be infinite, skipping file in std calculation')
         else:
             gc = lig_gc(lig_xyz)
             gc_list.append(gc)
-            std_sim_new = np.std(np.array(gc_list), axis=0)
-            if np.all(std_sim_new == 0):
+            std_sim_new = np.linalg.norm(np.std(np.array(gc_list), axis=0))
+            if std_sim_new == 0:
                 continue
-            if np.all(std_sim_old/std_sim_new < 2): # std difference threshold
+            if std_sim_old-std_sim_new < 2: # std difference threshold
                 std_sim_old = std_sim_new
             else:
                 print(std_sim_old, n+1)
-                if np.any(std_sim_old > th):
+                if std_sim_old > th:
                     fail = 1
                     print('DiffDock may have *FAILED* to predict the docking')
                 else:
@@ -80,7 +92,7 @@ def get_std_prot(dir,th=5):
                 return std_sim_old,fail
 
     print(std_sim_old,n+1)
-    if np.any(std_sim_old > th):
+    if std_sim_old > th:
         fail = 1
         print('DiffDock may have *FAILED* to predict the docking')
     else:
@@ -90,4 +102,4 @@ def get_std_prot(dir,th=5):
 
 
 if __name__ == '__main__':
-    s,f = get_std_prot('/home/albert/Desktop/Doc/dd_test/results/complex_0/')
+    s,f = get_std_prot('/home/albert/Desktop/Doc/SlitOR/results_dd/1-indanone_3/')

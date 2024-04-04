@@ -83,7 +83,7 @@ def plot_rel_rat(dfa,dfb,pred_df,out):
     failed = len(col)-correct
 
     if len(y) != len(col):
-        print(f'{out.split(".")[0]}_rel.pdf_kakb_rel.pdf will not be generated since the prediction file and the data_A and data_B are not corresponding')
+        print(f'{out.split(".")[0]}_rel.pdf will not be generated since the prediction file and the data_A and data_B are not corresponding')
         return
 
     plt.figure(figsize=(20,15))
