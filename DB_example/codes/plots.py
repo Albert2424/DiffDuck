@@ -176,7 +176,7 @@ def plot_bool_res(dfa, dfb, threshold=0.1, filename=None):
 
     if len(x) != len(col):
         print(
-            f'{filename.split("/")[-1].split(".")[0]}_kakb_pred.pdf will not be generated since the prediction file and the data_A and data_B are not corresponding'
+            f'{filename.split("/")[-1].split(".")[0]}_kakb_pred.pdf will not be generated since the prediction file and the data_A and data_B are not corresponding:{dfa.shape}, {len(col)}'
         )
         return
     err_x = np.array(dfa["ki SEM"]) / x
@@ -269,7 +269,7 @@ def plot_rel_res(dfa, dfb, threshold=0.1, filename=None):
             dfa = dfa.drop(i)
             dfb = dfb.drop(i)
     col = np.array(col["Reliability"])
-    correct = len(col[col >= 75])
+    correct = len(col[col >= 25])
     failed = len(col) - correct
 
     x = np.array(dfa["Ki (nM)"])
@@ -277,7 +277,7 @@ def plot_rel_res(dfa, dfb, threshold=0.1, filename=None):
 
     if len(x) != len(col):
         print(
-            f'{filename.split("/")[-1].split(".")[0]}_kakb_rel.pdf will not be generated since the prediction file and the data_A and data_B are not corresponding'
+            f'{filename.split("/")[-1].split(".")[0]}_kakb_rel.pdf will not be generated since the prediction file and the data_A and data_B are not corresponding: {dfa.shape}, {len(col)}'
         )
         return
 
@@ -307,7 +307,7 @@ def plot_rel_res(dfa, dfb, threshold=0.1, filename=None):
     plt.errorbar(
         x_err, y_err, yerr=err_y, xerr=err_x, alpha=0.3, capsize=5, fmt="none", zorder=0
     )
-    a = plt.scatter(x, y, c=col, cmap="cividis_r", s=35, clim=(50, 100))  # 'RdYlGn'
+    a = plt.scatter(x, y, c=col, cmap="cividis_r", s=35, clim=(0, 100))  # 'RdYlGn'
 
     plt.plot(x_values, x_values, label="$log(K_i^A) = log(K_i^B)$", color=c_list[0])
     plt.plot(
@@ -328,7 +328,7 @@ def plot_rel_res(dfa, dfb, threshold=0.1, filename=None):
         fontsize=35,
         markerscale=4.0,
         handles=[a.legend_elements()[0][-1], a.legend_elements()[0][0]],
-        labels=[f"Reliability > 75%: {correct}", f"Reliability < 75%: {failed}"],
+        labels=[f"Reliability > 25%: {correct}", f"Reliability < 25%: {failed}"],
     )
     cbar.set_label("DiffDock guess reliability", fontsize=35)
     cbar.set_ticks([50, 75, 100])
@@ -343,33 +343,32 @@ def plot_rel_res(dfa, dfb, threshold=0.1, filename=None):
 
 
 def plot_failed(dfa, dfb, failed, threshold=0.1, counts=False, predictions=None):
-    
 
     try:
         fail_df = pd.read_csv(failed)
     except:
-        print(f'Wrong file was inputed: {failed}')
+        print(f"Wrong file was inputed: {failed}")
         return
 
     pred = pd.read_csv(predictions)
-    pred = pred[['ID','Prediction','Reliability']]
-    
-    #if DD has failed there will be different values at the dfa and dfb so we must avoid them
+    pred = pred[["ID", "Prediction", "Reliability"]]
+
+    # if DD has failed there will be different values at the dfa and dfb so we must avoid them
     order = []
-    for i in range(len(dfa['Prot ID'])):
+    for i in range(len(dfa["Prot ID"])):
         id = f"{dfa['Prot ID'].loc[i]}_{dfb['Prot ID'].loc[i]}_{int(dfa['PubChem CID'].loc[i])}"
         order.append(id)
-        if id in pred['ID'].values:
+        if id in pred["ID"].values:
             pass
         else:
             dfa = dfa.drop(i)
             dfb = dfb.drop(i)
 
-    pred = pred.sort_values(by=['ID'])
+    pred = pred.sort_values(by=["ID"])
 
-    # Sort the predictions to match the dfa and dfb 
-    pred['ID'] = pd.Categorical(pred['ID'], categories=order, ordered=True)
-    pred = pred.sort_values(by='ID')
+    # Sort the predictions to match the dfa and dfb
+    pred["ID"] = pd.Categorical(pred["ID"], categories=order, ordered=True)
+    pred = pred.sort_values(by="ID")
 
     pred = pred.reset_index()
 
@@ -395,9 +394,9 @@ def plot_failed(dfa, dfb, failed, threshold=0.1, counts=False, predictions=None)
             dfb = dfb.reset_index(drop=True)
             pred = pred.reset_index(drop=True)
 
-    pred.to_csv(predictions.split('.')[0]+'_no_fails.csv')
+    pred.to_csv(predictions.split(".")[0] + "_no_fails.csv")
 
-    predictions = predictions.split('.')[0]+'_no_fails.csv'
+    predictions = predictions.split(".")[0] + "_no_fails.csv"
     if counts:
         plot_ab_count(dfa, dfb, threshold=threshold)
     plot_bool_res(dfa, dfb, threshold=threshold, filename=predictions)
@@ -409,9 +408,11 @@ if __name__ == "__main__":
     dfa = pd.read_csv(args.data_a)
     dfb = pd.read_csv(args.data_b)
 
-    if args.failed_file is not None:
-        print(f'Using {args.failed_file} to remove pairs that have individually failed with their ligand...')
-        print('')
+    if args.failed_file != "None":
+        print(
+            f"Using {args.failed_file} to remove pairs that have individually failed with their ligand..."
+        )
+        print("")
         plot_failed(
             dfa,
             dfb,

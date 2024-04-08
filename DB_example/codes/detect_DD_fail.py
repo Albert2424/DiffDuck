@@ -2,8 +2,6 @@ import numpy as np
 import mdtraj as md
 import os
 import re
-import pandas as pd
-
 
 def get_confidence(dir):
     """
@@ -21,17 +19,15 @@ def get_confidence(dir):
     for file in files:
         # print(file)
         try:
-            conf = re.search(r"confidence(.*?)\.pdb", file)
+            conf = re.search(r'confidence(.*?)\.pdb', file)
             conf = conf.group(1)
             conf_list.append(float(conf))
         except AttributeError:
             continue
-
+        
     sorted_list = sorted(conf_list, reverse=True)
-    sorted_list = [f"{i:.2f}" for i in sorted_list]
-    assert (
-        len(sorted_list) != 0
-    ), f"None of the files in {dir} can be analyzed... maybe they are in sdf format instead of pdb?"
+    sorted_list = [f'{i:.2f}' for i in sorted_list]
+    assert len(sorted_list) != 0, f'None of the files in {dir} can be analyzed... maybe they are in sdf format instead of pdb?'
     return sorted_list
 
 
@@ -53,15 +49,15 @@ def lig_gc(lig_xyz):
     return gc
 
 
-def get_std_prot(dir, th=0.2):
+def get_std_prot(dir,th=5):
 
     conf = get_confidence(dir)
     std_sim_old = 0
     gc_list = []
-    
-    for n, c in enumerate(conf):
-        
-        # avoid problems with confidence = 0.0 or -0.0
+
+    for n,c in enumerate(conf):
+
+        # avoid problems with confidence = 0.00 or -0.00
         if abs(float(c)) == 0:
             try:
                 file = f"rank{n+1}_confidence0.00.pdb"
@@ -76,47 +72,34 @@ def get_std_prot(dir, th=0.2):
 
         lig_xyz = lig.xyz
         if np.isnan(lig_xyz).any():
-            # print(f'Coordinates of {file} may be infinite, skipping file in std calculation')
-            pass
+            print(f'Coordinates of {file} may be infinite, skipping file in std calculation')
         else:
             gc = lig_gc(lig_xyz)
             gc_list.append(gc)
             std_sim_new = np.linalg.norm(np.std(np.array(gc_list), axis=0))
             if std_sim_new == 0:
                 continue
-            if abs(std_sim_old - std_sim_new) < 2:  # std difference threshold
+            if std_sim_old-std_sim_new < 2: # std difference threshold
                 std_sim_old = std_sim_new
             else:
-                # print(std_sim_old, n+1)
+                print(std_sim_old, n+1)
                 if std_sim_old > th:
                     fail = 1
-                    # print('DiffDock may have *FAILED* to predict the docking')
+                    print('DiffDock may have *FAILED* to predict the docking')
                 else:
-                    # print('DiffDock seems to have *CORRECTLY* predicted the docking')
+                    print('DiffDock seems to have *CORRECTLY* predicted the docking')
                     fail = 0
-                return std_sim_old, fail
+                return std_sim_old,fail
 
-    # print(std_sim_old,n+1)
+    print(std_sim_old,n+1)
     if std_sim_old > th:
         fail = 1
-        # print('DiffDock may have *FAILED* to predict the docking site')
+        print('DiffDock may have *FAILED* to predict the docking')
     else:
-        # print('DiffDock seems to have *CORRECTLY* predicted the docking site')
+        print('DiffDock seems to have *CORRECTLY* predicted the docking')
         fail = 0
-    return std_sim_old, fail
+    return std_sim_old,fail
 
 
-if __name__ == "__main__":
-    fails = {'Fail':[],'Protein':[],'Pubchem CID':[]}
-    x_std=[]
-    # n_samples = np.arange(0,n+1)
-
-    for dir_path in os.listdir('/home/ramon/juan/DD/DD_solo/'):
-         if os.path.isdir(f'/home/ramon/juan/DD/DD_solo/{dir_path}'):
-            s, fail = get_std_prot(f'/home/ramon/juan/DD/DD_solo/{dir_path}/')
-            name = dir_path.split('_')
-            fails['Fail'].append(fail)
-            fails['Protein'].append(name[0])
-            fails['PubChem CID'].append(name[1])
-    df = pd.DataFrame(fails)
-    df.to_csv('fails.csv',index=False)
+if __name__ == '__main__':
+    s,f = get_std_prot('/home/albert/Desktop/Doc/SlitOR/results_dd/1-indanone_3/')

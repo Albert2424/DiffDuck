@@ -1,0 +1,25 @@
+################ DATABASE #####################
+
+database='Database_example.tsv'                 # Path to the file containing the database
+
+############ DATABASE PARAMETERS ##############
+
+new=false                                       # Set to true if its the first time you run a database to just print the column names
+threshold=.1                                    # Minimum ratio between the affinities of prot A and B
+
+############### COLUMN NAMES ##################
+
+SMILES='Ligand SMILES'                          # Name of the column containing the SMILES of the ligands
+sequence='BindingDB Target Chain Sequence'      # Name of the column containing the sequence of the target proteins
+affinity='Kd (nM)'                              # Name of the column containing the affinity of the ligand with the protein
+CID='PubChem CID of Ligand'                     # Name of the column containing the CID of the ligand
+
+############ EXCLUDE TRAINING #################
+
+match_file='pdbbind_match_example.csv'          # Path of the file containing the matches with the training database
+
+################### PLOTS #####################
+
+data_A='output/data_A.csv'                      # Path of the file of the most affine proteins
+data_B='output/data_B.csv'                      # Path of the file of the least affine proteins
+failed=None                                     # None if you don't want to exclude the proteins, else a csv file containing the failed proteins when running DiffDock with just a protein and a ligand.
