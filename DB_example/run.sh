@@ -39,9 +39,9 @@ if [ $new == false ]; then
     INDEX=0
     for pred in $pred_list; do
         if [ $INDEX == 0 ]; then
-            python codes/plots.py --data_a "$data_A" --data_b "$data_B" --threshold "$threshold" --predictions output/"$pred" --counts True --failed_file "$failed"
+            python codes/plots.py --data_a "$data_A" --data_b "$data_B" --threshold "$th" --predictions output/"$pred" --counts True --failed_file "$failed"
         else
-            python codes/plots.py --data_a "$data_A" --data_b "$data_B" --threshold "$threshold" --predictions output/"$pred" --failed_file "$failed"
+            python codes/plots.py --data_a "$data_A" --data_b "$data_B" --threshold "$th" --predictions output/"$pred" --failed_file "$failed"
         fi
         let INDEX=${INDEX}+1
     done

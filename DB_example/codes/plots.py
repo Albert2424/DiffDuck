@@ -72,11 +72,11 @@ def plot_ab_count(dfa, dfb, threshold=0.1):
 
     c_list = cm.viridis(np.linspace(0, 1, 4))
 
-    x = np.array(dfa["Kd (nM)"])
-    y = np.array(dfb["Kd (nM)"])
+    x = np.array(dfb["Kd (nM)"])
+    y = np.array(dfa["Kd (nM)"])
 
-    err_x = np.array(dfa["kd SEM"]) / x
-    err_y = np.array(dfb["kd SEM"]) / y
+    err_x = np.abs(np.array(dfa["kd SEM"]) / x)
+    err_y = np.abs(np.array(dfb["kd SEM"]) / y)
 
     mask_x = err_x != 0
     mask_y = err_y != 0
@@ -111,16 +111,16 @@ def plot_ab_count(dfa, dfb, threshold=0.1):
     )
     plt.scatter(x, y, c=col, cmap="viridis", s=35)
 
-    plt.plot(x_values, x_values, label="$log(K_i^A) = log(K_i^B)$", color=c_list[0])
+    plt.plot(x_values, x_values, label="$log(K_D^A) = log(K_D^B)$", color=c_list[0])
     plt.plot(
         x_values,
         x_values + np.log10(threshold),
         color=c_list[1],
-        label=f"$log(K_i^B/K_i^A)$ = {threshold}",
+        label=f"$log(K_D^A/K_D^B)$ = {threshold}",
     )
 
-    plt.xlabel(rf"$log(K_i^A)$", fontsize=35)
-    plt.ylabel(rf"$log(K_i^B)$", fontsize=35)
+    plt.xlabel(rf"$log(K_D^B)$", fontsize=35)
+    plt.ylabel(rf"$log(K_D^A)$", fontsize=35)
     plt.xticks(fontsize=35)
     plt.yticks(fontsize=35)
     cbar = plt.colorbar()
@@ -128,8 +128,13 @@ def plot_ab_count(dfa, dfb, threshold=0.1):
     cbar.set_label("Ligand counts", fontsize=35)
     plt.legend(fontsize=35)
 
-    plt.xlim([min(min(x), min(x_err)) - 0.2, max(max(x), max(x_err)) + 0.2])
-    plt.ylim([min(min(y), min(y_err)) - 0.2, max(max(y), max(y_err)) + 0.2])
+    try:
+        plt.xlim([min(min(x), min(x_err)) - 0.2, max(max(x), max(x_err)) + 0.2])
+        plt.ylim([min(min(y), min(y_err)) - 0.2, max(max(y), max(y_err)) + 0.2])
+    except ValueError:
+        plt.xlim([min(x) - 0.2, max(x) + 0.2])
+        plt.ylim([min(y) - 0.2, max(y) + 0.2])
+
     plt.tight_layout()
 
     plt.savefig("output/figures/ka_kb_count.pdf")
@@ -171,8 +176,8 @@ def plot_bool_res(dfa, dfb, threshold=0.1, filename=None):
     correct = len(col[col == 0.2])
     failed = len(col) - correct
 
-    x = np.array(dfa["Kd (nM)"])
-    y = np.array(dfb["Kd (nM)"])
+    x = np.array(dfb["Kd (nM)"])
+    y = np.array(dfa["Kd (nM)"])
 
     if len(x) != len(col):
         print(
@@ -207,16 +212,16 @@ def plot_bool_res(dfa, dfb, threshold=0.1, filename=None):
     )
     a = plt.scatter(x, y, c=col, cmap="PiYG_r", s=35, clim=(0, 1))  # 'RdYlGn'
 
-    plt.plot(x_values, x_values, label="$log(K_i^A) = log(K_i^B)$", color=c_list[0])
+    plt.plot(x_values, x_values, label="$log(K_D^A) = log(K_D^B)$", color=c_list[0])
     plt.plot(
         x_values,
         x_values + np.log10(threshold),
         color=c_list[1],
-        label=f"$log(K_i^B/K_i^A)$ = {threshold}",
+        label=f"$log(K_D^A/K_D^B)$ = {threshold}",
     )
 
-    plt.xlabel(rf"$log(K_i^A)$", fontsize=35)
-    plt.ylabel(rf"$log(K_i^B)$", fontsize=35)
+    plt.xlabel(rf"$log(K_D^B)$", fontsize=35)
+    plt.ylabel(rf"$log(K_D^A)$", fontsize=35)
     plt.xticks(fontsize=35)
     plt.yticks(fontsize=35)
     cbar = plt.colorbar()
@@ -232,10 +237,14 @@ def plot_bool_res(dfa, dfb, threshold=0.1, filename=None):
     cbar.set_ticks([0, 1])
     cbar.set_ticklabels(["A", "B"])
 
-    plt.xlim([min(min(x), min(x_err)) - 0.2, max(max(x), max(x_err)) + 0.2])
-    plt.ylim([min(min(y), min(y_err)) - 0.2, max(max(y), max(y_err)) + 0.2])
-    plt.tight_layout()
+    try:
+        plt.xlim([min(min(x), min(x_err)) - 0.2, max(max(x), max(x_err)) + 0.2])
+        plt.ylim([min(min(y), min(y_err)) - 0.2, max(max(y), max(y_err)) + 0.2])
+    except ValueError:
+        plt.xlim([min(x) - 0.2, max(x) + 0.2])
+        plt.ylim([min(y) - 0.2, max(y) + 0.2])
 
+    plt.tight_layout()
     plt.savefig(f'output/figures/{filename.split("/")[-1].split(".")[0]}_kakb_pred.pdf')
     # plt.show()
 
@@ -269,11 +278,11 @@ def plot_rel_res(dfa, dfb, threshold=0.1, filename=None):
             dfa = dfa.drop(i)
             dfb = dfb.drop(i)
     col = np.array(col["Reliability"])
-    correct = len(col[col >= 25])
+    correct = len(col[col >= 50])
     failed = len(col) - correct
 
-    x = np.array(dfa["Kd (nM)"])
-    y = np.array(dfb["Kd (nM)"])
+    x = np.array(dfb["Kd (nM)"])
+    y = np.array(dfa["Kd (nM)"])
 
     if len(x) != len(col):
         print(
@@ -307,18 +316,18 @@ def plot_rel_res(dfa, dfb, threshold=0.1, filename=None):
     plt.errorbar(
         x_err, y_err, yerr=err_y, xerr=err_x, alpha=0.3, capsize=5, fmt="none", zorder=0
     )
-    a = plt.scatter(x, y, c=col, cmap="cividis_r", s=35, clim=(0, 100))  # 'RdYlGn'
+    a = plt.scatter(x, y, c=col, cmap="cividis_r", s=35, clim=(min(col), 100))  # 'RdYlGn'
 
-    plt.plot(x_values, x_values, label="$log(K_i^A) = log(K_i^B)$", color=c_list[0])
+    plt.plot(x_values, x_values, label="$log(K_D^A) = log(K_D^B)$", color=c_list[0])
     plt.plot(
         x_values,
         x_values + np.log10(threshold),
         color=c_list[1],
-        label=f"$log(K_i^B/K_i^A)$ = {threshold}",
+        label=f"$log(K_D^A/K_D^B)$ = {threshold}",
     )
 
-    plt.xlabel(rf"$log(K_i^A)$", fontsize=35)
-    plt.ylabel(rf"$log(K_i^B)$", fontsize=35)
+    plt.xlabel(rf"$log(K_D^B)$", fontsize=35)
+    plt.ylabel(rf"$log(K_D^A)$", fontsize=35)
     plt.xticks(fontsize=35)
     plt.yticks(fontsize=35)
     cbar = plt.colorbar()
@@ -328,14 +337,18 @@ def plot_rel_res(dfa, dfb, threshold=0.1, filename=None):
         fontsize=35,
         markerscale=4.0,
         handles=[a.legend_elements()[0][-1], a.legend_elements()[0][0]],
-        labels=[f"Reliability > 25%: {correct}", f"Reliability < 25%: {failed}"],
+        labels=[f"Reliability > 50%: {correct}", f"Reliability < 50%: {failed}"],
     )
     cbar.set_label("DiffDock guess reliability", fontsize=35)
     cbar.set_ticks([50, 75, 100])
     cbar.set_ticklabels(["50%", "75%", "100%"])
 
-    plt.xlim([min(min(x), min(x_err)) - 0.2, max(max(x), max(x_err)) + 0.2])
-    plt.ylim([min(min(y), min(y_err)) - 0.2, max(max(y), max(y_err)) + 0.2])
+    try:
+        plt.xlim([min(min(x), min(x_err)) - 0.2, max(max(x), max(x_err)) + 0.2])
+        plt.ylim([min(min(y), min(y_err)) - 0.2, max(max(y), max(y_err)) + 0.2])
+    except ValueError:
+        plt.xlim([min(x) - 0.2, max(x) + 0.2])
+        plt.ylim([min(y) - 0.2, max(y) + 0.2])
     plt.tight_layout()
 
     plt.savefig(f'output/figures/{filename.split("/")[-1].split(".")[0]}_kakb_rel.pdf')
@@ -407,6 +420,9 @@ if __name__ == "__main__":
     print(f"Plotting {args.predictions}")
     dfa = pd.read_csv(args.data_a)
     dfb = pd.read_csv(args.data_b)
+
+    # dfa = dfa.loc[[i for i in range(51)]]
+    # dfb = dfb.loc[[i for i in range(51)]]
 
     if args.failed_file != "None":
         print(

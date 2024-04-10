@@ -52,12 +52,12 @@ def prediction(df, out_file):
         slice = df[df["ID"] == i].copy()
         slice = slice[slice["Confidence"] != -1000]  # exclude failed attempts
         slice = slice.reset_index(drop=True)
-        slice = slice.iloc[:40]
+        # slice = slice.iloc[:50]
         samples = len(slice)
 
-        # slice.loc[slice["Chain(A=0)(B=1)"] == 0, "Chain(A=0)(B=1)"] = -1
-        # slice.loc[slice['Chain(A=0)(B=1)'] == 1, 'Chain(A=0)(B=1)'] = 0
-        # slice.loc[slice['Chain(A=0)(B=1)'] == -1, 'Chain(A=0)(B=1)'] = 1
+        slice.loc[slice["Chain(A=0)(B=1)"] == 0, "Chain(A=0)(B=1)"] = -1
+        slice.loc[slice['Chain(A=0)(B=1)'] == 1, 'Chain(A=0)(B=1)'] = 0
+        slice.loc[slice['Chain(A=0)(B=1)'] == -1, 'Chain(A=0)(B=1)'] = 1
         # slice.loc[slice['Chain(A=0)(B=1)'] == 0, 'Chain(A=0)(B=1)'] = -1
 
         ci = np.array(slice["Confidence"])
@@ -167,7 +167,7 @@ def plot_rel_rat(dfa, dfb, pred_df, out):
     # if DD has failed there will be different values at the dfa and dfb so we must avoid them
     for i in range(len(dfa["Prot ID"])):
         id = f"{dfa['Prot ID'].loc[i]}_{dfb['Prot ID'].loc[i]}_{int(dfa['PubChem CID'].loc[i])}"
-        print(id)
+        # print(id)
         if id in pred_df["ID"].values:
             pass
         else:
@@ -176,7 +176,7 @@ def plot_rel_rat(dfa, dfb, pred_df, out):
 
     # pred_df = pred_df[pred_df['Prediction'] == 1]
     x = np.array(pred_df["Reliability"])
-    y = np.log10(np.array(dfa["Kd (nM)"]) / np.array(dfb["Kd (nM)"]))
+    y = np.log10(np.array(dfb["Kd (nM)"]) / np.array(dfa["Kd (nM)"]))
 
     col = np.array(pred_df["Prediction"], dtype=float)
     col[col == 0] = 0.20
@@ -192,7 +192,7 @@ def plot_rel_rat(dfa, dfb, pred_df, out):
     plt.figure(figsize=(20, 15))
     a = plt.scatter(x, y, c=col, cmap="PiYG_r", s=35, clim=(0, 1))
     plt.xlabel("Reliability", fontsize=35)
-    plt.ylabel(rf"$log(K_d^A/K_d^B)$", fontsize=35)
+    plt.ylabel(rf"$log(K_d^B/K_d^A)$", fontsize=35)
     plt.legend(
         fontsize=35,
         markerscale=4.0,
@@ -218,10 +218,8 @@ if __name__ == "__main__":
     dfa = pd.read_csv(args.data_a)
     dfb = pd.read_csv(args.data_b)
 
-    dfa = dfa.loc[[i for i in range(51)]]
-    dfb = dfb.loc[[i for i in range(51)]]
-
-    print(len(dfa))
+    # dfa = dfa.loc[[i for i in range(51)]]
+    # dfb = dfb.loc[[i for i in range(51)]]
 
     df = prediction(df, args.output_file)
     plot_rel_rat(dfa, dfb, df, args.output_file)

@@ -5,7 +5,7 @@ database='Database_example.tsv'                 # Path to the file containing th
 ############ DATABASE PARAMETERS ##############
 
 new=false                                       # Set to true if its the first time you run a database to just print the column names
-threshold=.1                                    # Minimum ratio between the affinities of prot A and B
+threshold=1.                                    # Minimum ratio between the affinities of prot A and B
 
 ############### COLUMN NAMES ##################
 
@@ -23,3 +23,4 @@ match_file='pdbbind_match_example.csv'          # Path of the file containing th
 data_A='output/data_A.csv'                      # Path of the file of the most affine proteins
 data_B='output/data_B.csv'                      # Path of the file of the least affine proteins
 failed=None                                     # None if you don't want to exclude the proteins, else a csv file containing the failed proteins when running DiffDock with just a protein and a ligand.
+th=0.1                                          # Threshold at which a line will be plotted.    
