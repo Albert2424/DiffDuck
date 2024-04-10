@@ -36,9 +36,9 @@ parser.add_argument(
 parser.add_argument(
     "--affinity",
     type=str,
-    help="Name of the column containing the affinity protein+ligand (can be Ki, Kd, IC150...).",
+    help="Name of the column containing the affinity protein+ligand (can be Kd or any affinity that has the same relation with the affinity that kd: the lower the better).",
     required=False,
-    default='Ki (nM)'
+    default='Kd (nM)'
 )
 parser.add_argument(
     "--CID",
@@ -101,11 +101,11 @@ def clean_df(df, n_atoms=8, seq_lim=500, AF=False,out_file='data_prot.csv', af_o
     """
     Cleans the dataframe by: 
             --> Removing rows that have Nan values
-            --> Removing rows that have Ki values including > symbol (i.e. >100000)
+            --> Removing rows that have Kd values including > symbol (i.e. >100000)
             --> Removing rows that contain ligands smaller than n_atoms
-            --> Removing rows that contain Ki = 0  
-            --> Adding a column with the mean value of Ki for every lig-to-protein interaction
-            --> Adding a column with the standard deviation of the mean Ki for every lig-to-protein interaction (if it is only one value then it is set to 0)
+            --> Removing rows that contain Kd = 0  
+            --> Adding a column with the mean value of Kd for every lig-to-protein interaction
+            --> Adding a column with the standard deviation of the mean Kd for every lig-to-protein interaction (if it is only one value then it is set to 0)
             --> Adding a column with the SMILES of every ligand
             --> Adding a column with the protein IDs
 
@@ -169,7 +169,7 @@ def clean_df(df, n_atoms=8, seq_lim=500, AF=False,out_file='data_prot.csv', af_o
     
     df['SMILES'] = smiles
 
-    # Cal treure els que tinguin ki=0?
+    # delete values with affinity = 0
     df = df[df[f'{gl_affinity} mean']!= 0]
     df = df.drop_duplicates()
     df = df.reset_index(drop=True)
@@ -258,7 +258,7 @@ def sort_AB(df, threshold=0.1, out_A='data_A.csv', out_B='data_B.csv'):
 
 
     # create the new dataframes where proteins will be sorted by their affinity with the same ligand
-    columns = ['Prot ID','Sequence','SMILES','Ki (nM)','ki SEM','PubChem CID']
+    columns = ['Prot ID','Sequence','SMILES','Kd (nM)','kd SEM','PubChem CID']
     df_out_a = pd.DataFrame(columns=columns)
     df_out_b = pd.DataFrame(columns=columns)
 
@@ -268,22 +268,22 @@ def sort_AB(df, threshold=0.1, out_A='data_A.csv', out_B='data_B.csv'):
     for lig in unique:
 
         slice = df[df['SMILES'] == lig] # obtain the slice of the dataframe that contains the ligand
-        ratios = np.array(slice[f'{gl_affinity} mean'])[:, None] / np.array(slice[f'{gl_affinity} mean']) # ki_j/ki_k
+        ratios = np.array(slice[f'{gl_affinity} mean'])[:, None] / np.array(slice[f'{gl_affinity} mean']) # kd_j/kd_k
 
         indices = np.indices(ratios.shape)
         id_slice = list(slice['ID'])
 
         prot = list(slice[gl_seq])
-        ki = list(slice[f'{gl_affinity} mean'])
-        ki_sem = list(slice[f'{gl_affinity} sem'])
+        kd = list(slice[f'{gl_affinity} mean'])
+        kd_sem = list(slice[f'{gl_affinity} sem'])
         pub_cid = list(slice[gl_cid])
 
 
         mask = ratios < threshold # select only the proteins that have a ratio lower than threshold
 
-        # since the threshold is less than 1, the most affine prot will be the one dividing
-        indices_B = indices[0][mask]
-        indices_A = indices[1][mask]
+        # since the threshold is less than 1, the least affine prot will be the one dividing
+        indices_A = indices[0][mask]
+        indices_B = indices[1][mask]
         ratios = ratios[mask]
         
         rows_a = []
@@ -298,15 +298,15 @@ def sort_AB(df, threshold=0.1, out_A='data_A.csv', out_B='data_B.csv'):
             rows_a.append({'Prot ID':id_slice[indices_A[i]],
                             'Sequence':prot[indices_A[i]],
                             'SMILES':lig,
-                            'Ki (nM)':ki[indices_A[i]],
-                            'ki SEM': ki_sem[indices_A[i]],
+                            'Kd (nM)':kd[indices_A[i]],
+                            'kd SEM': kd_sem[indices_A[i]],
                             'PubChem CID':pub_cid[indices_A[i]]})
 
             rows_b.append({'Prot ID':id_slice[indices_B[i]],
                             'Sequence':prot[indices_B[i]],
                             'SMILES':lig,
-                            'Ki (nM)':ki[indices_B[i]],
-                            'ki SEM': ki_sem[indices_B[i]],
+                            'Kd (nM)':kd[indices_B[i]],
+                            'kd SEM': kd_sem[indices_B[i]],
                             'PubChem CID':pub_cid[indices_B[i]]})
 
         r_a = pd.DataFrame(rows_a)
@@ -390,6 +390,6 @@ if __name__ == '__main__':
             df = drop_if_in_training(file_drop,df) # --> clean_data.csv can be used for creating the protein PDB files (i.e. AlphaFold)
         except:
             print(f'Skipping drop if in training since {file_drop} is not defined or is from a different dataset')
-        # Sort the values of the final database in a way that kiA > kiB
+        # Sort the values of the final database in a way that kdA < kdB
         dfa,dfb = sort_AB(df,threshold=thresh) # --> data_A.csv, data_B.csv files can be paired to run the DiffDock simulation
         # print(dfa.columns)

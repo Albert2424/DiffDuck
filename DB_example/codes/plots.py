@@ -72,11 +72,11 @@ def plot_ab_count(dfa, dfb, threshold=0.1):
 
     c_list = cm.viridis(np.linspace(0, 1, 4))
 
-    x = np.array(dfa["Ki (nM)"])
-    y = np.array(dfb["Ki (nM)"])
+    x = np.array(dfa["Kd (nM)"])
+    y = np.array(dfb["Kd (nM)"])
 
-    err_x = np.array(dfa["ki SEM"]) / x
-    err_y = np.array(dfb["ki SEM"]) / y
+    err_x = np.array(dfa["kd SEM"]) / x
+    err_y = np.array(dfb["kd SEM"]) / y
 
     mask_x = err_x != 0
     mask_y = err_y != 0
@@ -171,16 +171,16 @@ def plot_bool_res(dfa, dfb, threshold=0.1, filename=None):
     correct = len(col[col == 0.2])
     failed = len(col) - correct
 
-    x = np.array(dfa["Ki (nM)"])
-    y = np.array(dfb["Ki (nM)"])
+    x = np.array(dfa["Kd (nM)"])
+    y = np.array(dfb["Kd (nM)"])
 
     if len(x) != len(col):
         print(
             f'{filename.split("/")[-1].split(".")[0]}_kakb_pred.pdf will not be generated since the prediction file and the data_A and data_B are not corresponding:{dfa.shape}, {len(col)}'
         )
         return
-    err_x = np.array(dfa["ki SEM"]) / x
-    err_y = np.array(dfb["ki SEM"]) / y
+    err_x = np.array(dfa["kd SEM"]) / x
+    err_y = np.array(dfb["kd SEM"]) / y
 
     mask_x = err_x != 0
     mask_y = err_y != 0
@@ -272,8 +272,8 @@ def plot_rel_res(dfa, dfb, threshold=0.1, filename=None):
     correct = len(col[col >= 25])
     failed = len(col) - correct
 
-    x = np.array(dfa["Ki (nM)"])
-    y = np.array(dfb["Ki (nM)"])
+    x = np.array(dfa["Kd (nM)"])
+    y = np.array(dfb["Kd (nM)"])
 
     if len(x) != len(col):
         print(
@@ -281,8 +281,8 @@ def plot_rel_res(dfa, dfb, threshold=0.1, filename=None):
         )
         return
 
-    err_x = np.array(dfa["ki SEM"]) / x
-    err_y = np.array(dfb["ki SEM"]) / y
+    err_x = np.array(dfa["kd SEM"]) / x
+    err_y = np.array(dfb["kd SEM"]) / y
 
     mask_x = err_x != 0
     mask_y = err_y != 0

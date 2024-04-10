@@ -44,24 +44,23 @@ def prediction(df, out_file):
         pd.DataFrame: A pandas dataframe containing the chain ID, prediction, and Reliability of the prediction.
     """
 
+
     pred_df = pd.DataFrame(columns=["ID", "Prediction", "Reliability"])
 
     for i in np.unique(df["ID"]):
 
         slice = df[df["ID"] == i].copy()
         slice = slice[slice["Confidence"] != -1000]  # exclude failed attempts
-        samples = len(slice)
         slice = slice.reset_index(drop=True)
+        slice = slice.iloc[:40]
+        samples = len(slice)
 
-        slice.loc[slice["Chain(A=0)(B=1)"] == 0, "Chain(A=0)(B=1)"] = -1
+        # slice.loc[slice["Chain(A=0)(B=1)"] == 0, "Chain(A=0)(B=1)"] = -1
         # slice.loc[slice['Chain(A=0)(B=1)'] == 1, 'Chain(A=0)(B=1)'] = 0
         # slice.loc[slice['Chain(A=0)(B=1)'] == -1, 'Chain(A=0)(B=1)'] = 1
         # slice.loc[slice['Chain(A=0)(B=1)'] == 0, 'Chain(A=0)(B=1)'] = -1
 
-        # print(slice)
         ci = np.array(slice["Confidence"])
-        # ci[ci > -2] *= 2
-        # print(ci)
         c_max = ci[0]
         c_min = ci[len(slice) - 1]
 
@@ -71,14 +70,58 @@ def prediction(df, out_file):
         norm_conf = np.array(numerator) / denominator
 
         slice["Normal conf"] = norm_conf
+        d_0 = slice.loc[slice["Chain(A=0)(B=1)"] == 0, "Normal conf"] 
+        c_0 = np.sum(np.array(d_0))/np.sum(norm_conf)
+   
+        d_1 = slice.loc[slice["Chain(A=0)(B=1)"] == 1, "Normal conf"]
+        c_1 = np.sum(np.array(d_1))/np.sum(norm_conf)
 
-        pred_1 = np.sum(
-            np.array(slice["Chain(A=0)(B=1)"]) * np.array(slice["Normal conf"])
-        )
-        pred_1 = pred_1 / samples
-        # if slice.shape[0] > samples*2/3:
+        # ni/N
+        # w_0 = len(d_0)/samples
+        # w_1 = len(d_1)/samples
+
+        # sum(ind/samples) / w_max 
+        # w_max = np.sum(1/np.arange(1,samples))
+        # w_0 = np.sum(1/(np.array(d_0.index) + 1))/w_max
+        # w_1 = np.sum(1/(np.array(d_1.index) + 1))/w_max
+
+        # simply 1
+        w_0 = 1
+        w_1 = 1
+
+        # change weight every 10 samples
+        # w_max = np.sum([(i+1) for i in range(int(samples/10))])
+        # ind_0 = np.array(d_0.index) + 1
+        # ind_1 = np.array(d_1.index) + 1
+
+        # i_0 = []
+        # i_1 = []
+        # factor = 10
+        # for j in (ind_0):
+        #     if j < factor:
+        #         i_0.append(1/factor)
+        #     else:
+        #         factor += 10
+        #         i_0.append(1/factor)
+
+        # factor = 10
+        # for j in ind_1:
+        #     if j < factor:
+        #         i_1.append(1/factor)
+        #     else:
+        #         factor += 10
+        #         i_1.append(1/factor) 
+
+        # w_0 = np.sum((np.array(i_0)))/w_max
+        # w_1 = np.sum((np.array(i_1)))/w_max
         
-        if pred_1 > 0.0:
+        pred_0 = c_0*w_0
+        pred_1 = c_1*w_1
+
+        # print(pred_0,pred_1) 
+        # print(w_0,w_1, c_0, c_1)   
+
+        if pred_1 > pred_0:
             pred_df = pd.concat(
                 [
                     pred_df if not pred_df.empty else None,
@@ -104,7 +147,7 @@ def prediction(df, out_file):
                             {
                                 "ID": i,
                                 "Prediction": 0,
-                                "Reliability": round(abs(pred_1) * 100, 2),
+                                "Reliability": round(abs(pred_0) * 100, 2),
                             }
                         ]
                     ),
@@ -124,7 +167,7 @@ def plot_rel_rat(dfa, dfb, pred_df, out):
     # if DD has failed there will be different values at the dfa and dfb so we must avoid them
     for i in range(len(dfa["Prot ID"])):
         id = f"{dfa['Prot ID'].loc[i]}_{dfb['Prot ID'].loc[i]}_{int(dfa['PubChem CID'].loc[i])}"
-        # print(id)
+        print(id)
         if id in pred_df["ID"].values:
             pass
         else:
@@ -133,7 +176,7 @@ def plot_rel_rat(dfa, dfb, pred_df, out):
 
     # pred_df = pred_df[pred_df['Prediction'] == 1]
     x = np.array(pred_df["Reliability"])
-    y = np.log10(np.array(dfa["Ki (nM)"]) / np.array(dfb["Ki (nM)"]))
+    y = np.log10(np.array(dfa["Kd (nM)"]) / np.array(dfb["Kd (nM)"]))
 
     col = np.array(pred_df["Prediction"], dtype=float)
     col[col == 0] = 0.20
@@ -149,7 +192,7 @@ def plot_rel_rat(dfa, dfb, pred_df, out):
     plt.figure(figsize=(20, 15))
     a = plt.scatter(x, y, c=col, cmap="PiYG_r", s=35, clim=(0, 1))
     plt.xlabel("Reliability", fontsize=35)
-    plt.ylabel(rf"$log(K_i^A/K_i^B)$", fontsize=35)
+    plt.ylabel(rf"$log(K_d^A/K_d^B)$", fontsize=35)
     plt.legend(
         fontsize=35,
         markerscale=4.0,
@@ -174,6 +217,11 @@ if __name__ == "__main__":
     df = pd.read_csv(args.results_file)
     dfa = pd.read_csv(args.data_a)
     dfb = pd.read_csv(args.data_b)
+
+    dfa = dfa.loc[[i for i in range(51)]]
+    dfb = dfb.loc[[i for i in range(51)]]
+
+    print(len(dfa))
 
     df = prediction(df, args.output_file)
     plot_rel_rat(dfa, dfb, df, args.output_file)
