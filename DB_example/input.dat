@@ -24,3 +24,4 @@ data_A='output/data_A.csv'                      # Path of the file of the most a
 data_B='output/data_B.csv'                      # Path of the file of the least affine proteins
 failed=None                                     # None if you don't want to exclude the proteins, else a csv file containing the failed proteins when running DiffDock with just a protein and a ligand.
 th=0.1                                          # Threshold at which a line will be plotted.    
+plot_th=0                                       # Whether (1) or not (0) to only plot the points below the threshold.
