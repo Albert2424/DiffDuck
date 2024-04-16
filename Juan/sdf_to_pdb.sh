@@ -1,5 +1,4 @@
 #!/bin/bash
-#path="/home/ramon/juan/diffdock_test/results/prova4.0/ligands"
 path=$1
 
 for file in $path/*sdf

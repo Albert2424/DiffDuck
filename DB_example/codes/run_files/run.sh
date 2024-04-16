@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source env.sh # Activate env if necessary
+# source codes/run_files/env.sh # Activate env if necessary
 source input.dat # Source the input variables
 
 # Clean database
@@ -45,4 +45,8 @@ if [ $new == false ]; then
         fi
         let INDEX=${INDEX}+1
     done
+
+    # Mix data A wit data B in order to prevent errors while training
+    python codes/mix.py --data_a "$data_A" --data_b "$data_B" --th_amb "$th_amb"
 fi
+

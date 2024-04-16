@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from argparse import ArgumentParser
+# import detect_DD_fail as ddfail
 
 parser = ArgumentParser()
 parser.add_argument(
@@ -52,17 +53,17 @@ def prediction(df, out_file):
         slice = df[df["ID"] == i].copy()
         slice = slice[slice["Confidence"] != -1000]  # exclude failed attempts
         slice = slice.reset_index(drop=True)
-        # slice = slice.iloc[:50]
+        # slice = slice.iloc[:80]
         samples = len(slice)
 
         slice.loc[slice["Chain(A=0)(B=1)"] == 0, "Chain(A=0)(B=1)"] = -1
         slice.loc[slice['Chain(A=0)(B=1)'] == 1, 'Chain(A=0)(B=1)'] = 0
         slice.loc[slice['Chain(A=0)(B=1)'] == -1, 'Chain(A=0)(B=1)'] = 1
-        # slice.loc[slice['Chain(A=0)(B=1)'] == 0, 'Chain(A=0)(B=1)'] = -1
+        # slice.loc[slice['Chain(A=0)(B=1)'] == 0, 'Chain(A=0)(B=1)'] = -1  
 
         ci = np.array(slice["Confidence"])
         c_max = ci[0]
-        c_min = ci[len(slice) - 1]
+        c_min = ci[samples - 1]
 
         numerator = ci - c_min
         denominator = c_max - c_min
@@ -71,23 +72,23 @@ def prediction(df, out_file):
 
         slice["Normal conf"] = norm_conf
         d_0 = slice.loc[slice["Chain(A=0)(B=1)"] == 0, "Normal conf"] 
-        c_0 = np.sum(np.array(d_0))/np.sum(norm_conf)
+        c_0 = np.sum(np.array(d_0))/samples
    
         d_1 = slice.loc[slice["Chain(A=0)(B=1)"] == 1, "Normal conf"]
-        c_1 = np.sum(np.array(d_1))/np.sum(norm_conf)
+        c_1 = np.sum(np.array(d_1))/samples
 
         # ni/N
         # w_0 = len(d_0)/samples
         # w_1 = len(d_1)/samples
 
         # sum(ind/samples) / w_max 
-        # w_max = np.sum(1/np.arange(1,samples))
-        # w_0 = np.sum(1/(np.array(d_0.index) + 1))/w_max
-        # w_1 = np.sum(1/(np.array(d_1.index) + 1))/w_max
+        w_max = np.sum(1/np.arange(1,samples+1))
+        w_0 = np.sum(1/(np.array(d_0.index) + 1))/w_max
+        w_1 = np.sum(1/(np.array(d_1.index) + 1))/w_max
 
         # simply 1
-        w_0 = 1
-        w_1 = 1
+        # w_0 = 1
+        # w_1 = 1
 
         # change weight every 10 samples
         # w_max = np.sum([(i+1) for i in range(int(samples/10))])
@@ -160,6 +161,62 @@ def prediction(df, out_file):
         pred_df.to_csv("output/" + out_file)
     return pred_df
 
+def prediction_rank1(df, out_file):
+    pred_df = pd.DataFrame(columns=["ID", "Prediction", "Reliability"])
+
+    for i in np.unique(df["ID"]):
+
+        slice = df[df["ID"] == i].copy()
+        slice = slice[slice["Confidence"] != -1000]  # exclude failed attempts
+        slice = slice.reset_index(drop=True)
+        # slice = slice.iloc[:80]
+        samples = len(slice)
+
+        slice.loc[slice["Chain(A=0)(B=1)"] == 0, "Chain(A=0)(B=1)"] = -1
+        slice.loc[slice['Chain(A=0)(B=1)'] == 1, 'Chain(A=0)(B=1)'] = 0
+        slice.loc[slice['Chain(A=0)(B=1)'] == -1, 'Chain(A=0)(B=1)'] = 1
+        # slice.loc[slice['Chain(A=0)(B=1)'] == 0, 'Chain(A=0)(B=1)'] = -1  
+
+        pred = slice["Chain(A=0)(B=1)"].loc[0]
+        c = slice['Confidence'].loc[0] 
+
+        if pred == 1:
+            pred_df = pd.concat(
+                [
+                    pred_df if not pred_df.empty else None,
+                    pd.DataFrame(
+                        [
+                            {
+                                "ID": i,
+                                "Prediction": 1,
+                                "Reliability": round(abs(c), 2),
+                            }
+                        ]
+                    ),
+                ],
+                ignore_index=True,
+            )
+            # print(f'The prediction is chain 1 with certainty of {pred_1*100:.2f}%')
+        else:
+            pred_df = pd.concat(
+                [
+                    pred_df if not pred_df.empty else None,
+                    pd.DataFrame(
+                        [
+                            {
+                                "ID": i,
+                                "Prediction": 0,
+                                "Reliability": round(abs(c), 2),
+                            }
+                        ]
+                    ),
+                ],
+                ignore_index=True,
+            )
+        pred_df.to_csv("output/" + out_file)
+    return pred_df    
+
+
 
 def plot_rel_rat(dfa, dfb, pred_df, out):
     import matplotlib.pyplot as plt
@@ -208,7 +265,7 @@ def plot_rel_rat(dfa, dfb, pred_df, out):
     plt.xticks(fontsize=35)
     plt.yticks(fontsize=35)
     plt.tight_layout()
-    plt.savefig(f"output/figures/{out.split('.')[0]}_rel.pdf")
+    plt.savefig(f"output/figures/{out.split('.')[0]}_rel.png")
     # plt.show()
 
 
@@ -221,5 +278,5 @@ if __name__ == "__main__":
     # dfa = dfa.loc[[i for i in range(51)]]
     # dfb = dfb.loc[[i for i in range(51)]]
 
-    df = prediction(df, args.output_file)
+    df = prediction_rank1(df, args.output_file)
     plot_rel_rat(dfa, dfb, df, args.output_file)

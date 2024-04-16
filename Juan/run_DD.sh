@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH -J diffduck
+#SBATCH -J DD_tot
 #SBATCH -e error_%j.err
 #SBATCH -o output_%j.out
 #SBATCH --nodes=1
