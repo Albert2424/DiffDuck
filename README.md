@@ -19,11 +19,11 @@ This repository contains all the necessary files to run DiffDuck simulations alo
 First clone the directory containing all the necessary files by doing:
 
 ```bash
-git clone https://github.com/Albert2424/DiffDuck/tree/master/DB_example
+git clone https://github.com/Albert2424/DiffDuck.git
 ```
-Then move to the downloaded directory and use `source run.sh` to generate the output directory which includes both the figures and the output files. 
+Then move to the downloaded directory inside `DB_example` and use `source start.sh` to generate all the required directories for the code to work. This will also display a help for running the program. To reproduce all the work use `diffduck run`. 
 
-**_NOTE:_** _to reproduce the figures the `fails_solo.csv` file is needed. If this feature is not needed just change the `f` variable in `run.sh` for `None` and run the program._ 
+**_NOTE:_** _to reproduce the figures the `fails_solo.csv` file is needed. If this feature is not needed just change the `f` variable in `input.dat` for `None` and run the program._ 
 
 ### How does this code work?
 
@@ -91,7 +91,7 @@ Once this file is done Diffdock is ready to run.
 ```bash
 sbatch run_DD.sh
 ```
-All the necesary _pdb_ files will be generated and when Diffdock ends, the results will be organized by folders and the following file will be created and stored in `clean_results´.
+All the necessary _pdb_ files will be generated and when Diffdock ends, the results will be organized by folders and the following file will be created and stored in `clean_results´.
 
 7. `combined.csv` --> A file containing the ID, confidence and chain to which every sample has been attached.
 
