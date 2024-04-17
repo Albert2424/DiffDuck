@@ -18,10 +18,23 @@ CID='PubChem CID of Ligand'                     # Name of the column containing 
 
 match_file='pdbbind_match_example.csv'          # Path of the file containing the matches with the training database
 
-################### PLOTS #####################
+############### DD PREPARATION ###############
 
 data_A='output/data_A.csv'                      # Path of the file of the most affine proteins
 data_B='output/data_B.csv'                      # Path of the file of the least affine proteins
+
+
+############### DD PARAMETERS ###############
+
+n_replica=1                                     # Number of times repeting the Diffdock running
+DD=true                                         # Set true to use DiffDock
+DD_L=false                                      # Set true to use Diffdock-L
+samples=5                                       # Number of samples per complex predicted #DD-L (default_inference_args.yaml)
+run_name=DD_juan                                # Name of the prediction, the SLURM job and the results file in /DD will ahve this name 
+DD_path=/home/ramon/progs/DiffDock              # Path where DiffDock or DiffDock-L are located
+
+################### PLOTS #####################
+
 failed=None                                     # None if you don't want to exclude the proteins, else a csv file containing the failed proteins when running DiffDock with just a protein and a ligand.
 th=0.1                                          # Threshold at which a line will be plotted.    
 plot_th=0                                       # Whether (1) or not (0) to only plot the points below the threshold.
