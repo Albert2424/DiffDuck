@@ -14,15 +14,21 @@ parser.add_argument(
     help="CSV file with the Chain B information",
     required=True,
 )
+parser.add_argument(
+    "--name",
+    type=str,
+    help="Name of the run",
+    required=True,
+)
 args = parser.parse_args()
 
 
 # Archivos de entrada y salida
 data_a = pd.read_csv(args.chain_A)
 data_b = pd.read_csv(args.chain_B)
-
+run_name = args.name
 input_DD = {'complex_name':[], 'chainA': [], 'chainB': [], 'SMILES': []}
-path = 'output/prot_structures/'
+path = 'output/prot_structures/' + run_name + '/'
 
 complex_name = data_a['Prot ID'].astype(str) + '_' + data_b['Prot ID'].astype(str) + '_' + data_a['PubChem CID'].astype(str)
 

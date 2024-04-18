@@ -4,7 +4,7 @@
 source input.dat # Source the input variables
 
 analysis_counter=0
-result_dir=output/results_dd/
+result_dir=output/results_dd/$run_name
 structure_dir=output/prot_structures/merged_structures/
 for folder in $result_dir*; do
     if [ -d "$folder" ]; then
