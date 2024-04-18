@@ -1,4 +1,4 @@
-.PHONY: run help plot rank cdb model new_db pred_ligands file_prep analysis
+.PHONY: run help plot rank cdb model new_db docking file_prep analysis
 
 help:
 	@echo ''
@@ -29,7 +29,7 @@ help:
 	@echo ''
 	@echo -e '     \033[1m\033[31manalysis\033[0m: Analyzes the results of the docking program.'
 	@echo ''
-	@echo -e '        \033[1m\033[31mmodel\033[0m: Provides datafiles for trainning and generates'
+	@echo -e '        \033[1m\033[31mmodel\033[0m: Provides datafiles for training and generates'
 	@echo -e '\ta model for ranking the DiffDock results. In order to'
 	@echo -e '\tsolely run the models, data_A.csv and data_B.csv are'
 	@echo -e '\tneeded. Use diffduck cdb in order to generate them.'
