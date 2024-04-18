@@ -20,6 +20,12 @@ parser.add_argument(
     required=False,
     default= 1
 )
+parser.add_argument(
+    "--name",
+    type=str,
+    help="Name of the run",
+    required=True,
+)
 args = parser.parse_args()
 
 ################################################
@@ -76,13 +82,14 @@ def create_csv(data, protein_complex):
     protein_ligand['protein_sequence'] = np.nan
 
     df = pd.DataFrame(protein_ligand)
-    df.to_csv('output/protein_ligand.csv', index=False)
+    df.to_csv('output/protein_ligand_' + run_name + '.csv', index=False)
 
 # Main code
 if __name__ == '__main__':
     merge_input = args.merge_input
     replicas = args.replicas
-    path = 'output/prot_structures/merged_structures/'
+    run_name = args.name
+    path = 'output/prot_structures/merged_structures/' + run_name + '/'
     current_path = os.getcwd()
     data = pd.read_csv(merge_input)
     protein_complex = data['complex_name']
