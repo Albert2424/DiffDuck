@@ -1,6 +1,8 @@
 import numpy as np
 import pandas as pd
 from argparse import ArgumentParser
+from joblib import dump, load
+from sklearn.preprocessing import StandardScaler,PolynomialFeatures
 # import detect_DD_fail as ddfail
 
 parser = ArgumentParser()
@@ -26,6 +28,24 @@ parser.add_argument(
     "--data_b",
     type=str,
     help="Path to the file containing the proteins and ligands with their affinities of proteins B (less affine). Must be csv",
+    required=True,
+)
+parser.add_argument(
+    "--model_name",
+    type=str,
+    help="Name of the model that will be saved in a .joblib file.",
+    required=True,
+)
+parser.add_argument(
+    "--n_samples",
+    type=int,
+    help="The number of different samples from which the features will be extracted.",
+    required=True,
+)
+parser.add_argument(
+    "--validation_data",
+    type=str,
+    help="Name of file containing the set for validation.",
     required=True,
 )
 args = parser.parse_args()
@@ -214,59 +234,119 @@ def prediction_rank1(df, out_file):
                 ignore_index=True,
             )
         pred_df.to_csv("output/" + out_file)
-    return pred_df    
+    return pred_df
+
+def rank_by_forest_model(model,validation_data,out_file):
+    # load the model from the saved file
+    clf = load(f'model/{model}') 
+
+    # load the validation data
+    val_df = pd.read_csv(f'model/{validation_data}')
+
+    ids = val_df['ID']
+    val_df = val_df.drop('ID',axis=1)
+    exp_pred = val_df['Experimental Pred']
+    val_df = val_df.drop('Experimental Pred',axis=1)
+    prot_a = []
+    prot_b = []
+    ligs = []
+    
+    y_pred = clf.predict(val_df.values)
+
+    pred_df = pd.DataFrame()
+
+    for i,id in enumerate(ids):
+        id = id.split('_')
+        if (exp_pred[i] == 'A' or exp_pred[i] == 'C'):
+            prot_a.append(id[0])
+            prot_b.append(id[1])
+        elif exp_pred[i] == 'B':
+            prot_a.append(id[1])
+            prot_b.append(id[0])
+        ligs.append(id[2])
+
+    pred_df['Prot A ID'] = prot_a
+    pred_df['Prot B ID'] = prot_b
+    pred_df['Ligand ID'] = ligs
+
+    pred_df['Experimental Pred'] = exp_pred
+    pred_df['Prediction'] = y_pred
+    # Change 0 and 1 for A and B on the selected chains.
+    pred_df.loc[pred_df["Prediction"] == 'A', "Prediction"] = 0
+    pred_df.loc[pred_df["Prediction"] == 'B', "Prediction"] = 1
+    pred_df.loc[pred_df["Prediction"] == 'C', "Prediction"] = 0.7
+
+    pred_df.loc[pred_df["Experimental Pred"] == 'A', "Experimental Pred"] = 0
+    pred_df.loc[pred_df["Experimental Pred"] == 'B', "Experimental Pred"] = 1
+    pred_df.loc[pred_df["Experimental Pred"] == 'C', "Experimental Pred"] = 0.7
+
+    ac = clf.score(val_df.values, exp_pred)
+    print(f'Score of the model: {ac}')
+    pred_df.to_csv(f'output/{out_file}')
+
+    return pred_df
+
+def rank_by_svc_model(model,validation_data,out_file):
+    # load the model from the saved file
+    clf = load(f'model/{model}') 
+
+    # load the validation data
+    val_df = pd.read_csv(f'model/{validation_data}')
+
+    ids = val_df['ID']
+    val_df = val_df.drop('ID',axis=1)
+    exp_pred = val_df['Experimental Pred']
+    val_df = val_df.drop('Experimental Pred',axis=1)
+    prot_a = []
+    prot_b = []
+    ligs = []
+    X_val = val_df.values
+    # Make data separable by using polynomial behaviour
+    # poly = PolynomialFeatures(3)
+    # X_val = poly.fit_transform(val_df.values)
+
+    # Scale the data 
+    feature_scaler = StandardScaler()
+    X_val = feature_scaler.fit_transform(X_val)
+    y_pred = clf.predict(X_val)
+
+    pred_df = pd.DataFrame()
+
+    for i,id in enumerate(ids):
+        id = id.split('_')
+        if (exp_pred[i] == 'A' or exp_pred[i] == 'C'):
+            prot_a.append(id[0])
+            prot_b.append(id[1])
+        elif exp_pred[i] == 'B':
+            prot_a.append(id[1])
+            prot_b.append(id[0])
+        ligs.append(id[2])
+
+    pred_df['Prot A ID'] = prot_a
+    pred_df['Prot B ID'] = prot_b
+    pred_df['Ligand ID'] = ligs
+
+    pred_df['Experimental Pred'] = exp_pred
+    pred_df['Prediction'] = y_pred
+
+    # Change 0 and 1 for A and B on the selected chains.
+    pred_df.loc[pred_df["Prediction"] == 'A', "Prediction"] = 0
+    pred_df.loc[pred_df["Prediction"] == 'B', "Prediction"] = 1
+    pred_df.loc[pred_df["Prediction"] == 'C', "Prediction"] = 0.7
+
+    pred_df.loc[pred_df["Experimental Pred"] == 'A', "Experimental Pred"] = 0
+    pred_df.loc[pred_df["Experimental Pred"] == 'B', "Experimental Pred"] = 1
+    pred_df.loc[pred_df["Experimental Pred"] == 'C', "Experimental Pred"] = 0.7
+
+    ac = clf.score(X_val, exp_pred)
+    print(f'Score of the model: {ac:.3f}')
+    pred_df.to_csv(f'output/{out_file}')
+
+    return pred_df
+
+    
 
 
-
-def plot_rel_rat(dfa, dfb, pred_df, out):
-    import matplotlib.pyplot as plt
-
-    # if DD has failed there will be different values at the dfa and dfb so we must avoid them
-    for i in range(len(dfa["Prot ID"])):
-        id = f"{dfa['Prot ID'].loc[i]}_{dfb['Prot ID'].loc[i]}_{int(dfa['PubChem CID'].loc[i])}"
-        # print(id)
-        if id in pred_df["ID"].values:
-            pass
-        else:
-            dfa = dfa.drop(i)
-            dfb = dfb.drop(i)
-
-    # pred_df = pred_df[pred_df['Prediction'] == 1]
-    x = np.array(pred_df["Reliability"])
-    y = np.log10(np.array(dfb["Kd (nM)"]) / np.array(dfa["Kd (nM)"]))
-
-    col = np.array(pred_df["Prediction"], dtype=float)
-    col[col == 0] = 0.20
-    correct = len(col[col == 0.2])
-    failed = len(col) - correct
-
-    if len(y) != len(col):
-        print(
-            f'{out.split(".")[0]}_rel.pdf will not be generated since the prediction file and the data_A and data_B are not corresponding: {dfa.shape}, {len(col)}'
-        )
-        return
-
-    plt.figure(figsize=(20, 15))
-    a = plt.scatter(x, y, c=col, cmap="PiYG_r", s=35, clim=(0, 1))
-    plt.xlabel("Reliability", fontsize=35)
-    plt.ylabel(rf"$log(K_d^B/K_d^A)$", fontsize=35)
-    plt.legend(
-        fontsize=35,
-        markerscale=4.0,
-        handles=a.legend_elements()[0],
-        labels=[f"Guessed: {correct}", f"Failed: {failed}"],
-        ncol=2,
-        bbox_to_anchor=(0.5, 1.05),
-        fancybox=True,
-        shadow=True,
-        loc="upper left",
-    )
-
-    plt.xticks(fontsize=35)
-    plt.yticks(fontsize=35)
-    plt.tight_layout()
-    plt.savefig(f"output/figures/{out.split('.')[0]}_rel.png")
-    # plt.show()
 
 
 if __name__ == "__main__":
@@ -275,8 +355,6 @@ if __name__ == "__main__":
     dfa = pd.read_csv(args.data_a)
     dfb = pd.read_csv(args.data_b)
 
-    # dfa = dfa.loc[[i for i in range(51)]]
-    # dfb = dfb.loc[[i for i in range(51)]]
-
-    df = prediction_rank1(df, args.output_file)
-    plot_rel_rat(dfa, dfb, df, args.output_file)
+    # df = prediction_rank1(df, args.output_file)
+    # df = rank_by_forest_model(args.model_name,'validation_data.csv',args.output_file)
+    df =rank_by_svc_model(args.model_name,'validation_data.csv',args.output_file)
