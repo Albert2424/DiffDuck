@@ -113,8 +113,9 @@ def calculate_distances(prot, ligand):
 
     chainA = prot_lig.top.select('chainid 0 name CA')
     chainB = prot_lig.top.select('chainid 1 name CA')
-    ligand = prot_lig.top.select('resname UNL')
-
+    ligand = prot_lig.top.select('resname UNK')
+    if ligand.size == 0:
+        ligand = prot_lig.top.select('resname UNL')    
     pairs_A = list(product(chainA, ligand))
     dist_A = md.compute_distances(prot_lig, pairs_A).min()
 

@@ -62,5 +62,5 @@ analysis:
 	@./codes/run_files/analysis.sh
 	
 
-run:cdb rank plot file_prep pred_ligands analysis model
+run:cdb rank plot file_prep docking analysis model
 
