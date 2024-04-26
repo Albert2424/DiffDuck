@@ -27,11 +27,11 @@ data_B='output/data_B.csv'                      # Path of the file of the least 
 ############### DD PARAMETERS ###############
 
 n_replica=1                                     # Number of times repeting the Diffdock running
-DD=true                                         # Set true to use DiffDock
-DD_L=false                                      # Set true to use Diffdock-L
-samples=5                                       # Number of samples per complex predicted #DD-L (default_inference_args.yaml)
-run_name=DD_juan                                # Name of the prediction, the SLURM job and the results file in /DD will ahve this name 
+docking_program=DD                              # Set which docking_program do you want to use (DD=Diffdock, DD_L=Diffdock-L)
+samples=60                                      # Number of samples per complex predicted #DD-L (default_inference_args.yaml)
+run_name=AF_DD                                  # Name of the prediction, the SLURM job and the results file in /DD will ahve this name 
 DD_path=/home/ramon/progs/DiffDock              # Path where DiffDock or DiffDock-L are located
+auto_analysis=true                              # Analyse the docking results when the docking finish
 
 ################### PLOTS #####################
 
