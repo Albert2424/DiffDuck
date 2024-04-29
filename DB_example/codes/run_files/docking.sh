@@ -68,7 +68,8 @@ if [ $auto_analysis == true ]; then
     echo "-------------------------------------------------------------------"
     done
 
-    awk 'FNR==1 && NR!=1{next;}{print}' $(find . -name 'result.csv') > DD/result_${run_name}.csv
+    cd output/results_dd/${run_name}
+    awk 'FNR==1 && NR!=1{next;}{print}' $(find . -name 'result.csv') > ../../../DD/result_${run_name}.csv
     echo " --> Analysis finished"
     echo " --> Results are in DD/result_{$run_name}.csv"
 fi
