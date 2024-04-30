@@ -286,6 +286,63 @@ def plot_bool_res(dfa, dfb, threshold=0.1, predictions=None, plot_th=0):
     # plt.show()
 
 
+def plot_logk_pred(pred):
+
+    pred_df = pd.read_csv(pred)
+
+    y_true = np.array(pred_df["Prediction"], dtype=float)
+    y_pred = np.array(pred_df["Experimental Pred"], dtype=float)
+
+    c_list = cm.PiYG_r(np.linspace(0.2, 1, 2))
+    threshold = 0.1
+    x_values = np.linspace(min(min(y_pred), min(y_true)) - 5, max(max(y_pred), max(y_true) + 5), 100)
+
+    plt.figure(figsize=(20, 15))
+    plt.scatter(y_pred,y_true)
+
+    plt.xlabel(r"$log(\frac{K_D^A}{K_D^B})$ Predicted", fontsize=35)
+    plt.ylabel(r"$log(\frac{K_D^A}{K_D^B})$ Real", fontsize=35)
+    plt.xticks(fontsize=35)
+    plt.yticks(fontsize=35)
+
+    l1, = plt.plot(
+        x_values, x_values, label="Prediction = True value", color=c_list[0]
+    )
+    l2, = plt.plot(
+        x_values,
+        x_values + np.log10(threshold),
+        color=c_list[1],
+        label=f"$log(K_D^A/K_D^B) = log({threshold}$)",
+        linestyle="--", 
+    )
+    l3, = plt.plot(
+        x_values,
+        x_values - np.log10(threshold),
+        color=c_list[1],
+        label=f"$log(K_D^A/K_D^B) = log({threshold}$)",
+        linestyle="--",
+    )
+
+
+    leg2 = plt.legend(handles=[l1,l2],labels=["$log(K_D^A) = log(K_D^B)$",f"$log(K_D^A/K_D^B) = log({threshold}$)"],loc='upper center', bbox_to_anchor=(0.5, -0.1),
+          fancybox=True, shadow=True, ncol=2, fontsize=35)
+    
+
+    min_value = min(min(y_pred), min(y_true)) - 0.2
+    max_value = max(max(y_pred), max(y_true)) + 0.2
+
+
+    plt.fill_between(x_values, x_values + np.log10(threshold), x_values - np.log10(threshold), color=c_list[0], alpha=0.05)
+
+    plt.xlim([min_value, max_value])
+    plt.ylim([min_value, max_value])
+
+    plt.tight_layout()
+    plt.savefig(
+        f'output/figures/{pred.split("/")[-1].split(".")[0]}_logk.png'
+    )
+    
+
 if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument(
@@ -327,15 +384,26 @@ if __name__ == "__main__":
         required=False,
         default=0,
     )
+    parser.add_argument(
+        "--labels",
+        type=str,
+        help="Kind of labels: options are: 'ABC' or 'logk'. Default is 'logk'",
+        default="logk",
+        required=False,
+    )
     args = parser.parse_args()
 
     print(f"Plotting {args.predictions}")
     dfa = pd.read_csv(args.data_a)
     dfb = pd.read_csv(args.data_b)
-    plot_bool_res(
-        dfa,
-        dfb,
-        threshold=args.threshold,
-        predictions=args.predictions,
-        plot_th=args.plot_th,
-    )
+    
+    if args.labels == 'ABC':
+        plot_bool_res(
+            dfa,
+            dfb,
+            threshold=args.threshold,
+            predictions=args.predictions,
+            plot_th=args.plot_th,
+        )
+    elif args.labels == 'logk':
+        plot_logk_pred(args.predictions)

@@ -81,13 +81,12 @@ def plot_feature_importance(estimator,n_features,n_trials,X_train,y_train,X_test
 
     # Make n_trials to obtain an average of the feature weights
     feature_weights = []
-    feat=np.arange(n_features//2)
     columns=[]
-    for i in feat:
-        columns.append(f'Pred {i//2+1}')
-        columns.append(f'Conf {i//2+1}')
+    for i in range(n_features//2):
+        columns.append(f'Pred {i+1}')
+        columns.append(f'Conf {i+1}')
 
-    columns[-2:] = ['RMSD 0', 'RMSD 1']     
+    columns[-2:] = ['RMSD 0', 'RMSD 1']      
 
     ac = []
     df = pd.DataFrame(columns=columns)

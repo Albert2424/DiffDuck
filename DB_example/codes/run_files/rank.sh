@@ -2,7 +2,7 @@
 
 source input.dat # Source the input variables
 
-result_list=$(ls DD)
+result_list=$(ls DD | sed 's/\..*//')
 
 echo ''
 
@@ -16,6 +16,13 @@ if [ -z "$result_list" ]; then
 fi
 
 # Rank the predictions and plot ki ratio vs rel
-for result in $result_list; do
-    python codes/rank_formula.py --results_file DD/"$result" --output_file pred_"$result" --data_a "$data_A" --data_b "$data_B"
-done
+
+if [ $model_name == "None" ]; then
+    for result in $result_list; do
+        python codes/rank_formula.py --results_file DD/"$result".csv --output_file pred_"$result" --data_a "$data_A" --data_b "$data_B" --model_name "$model_name"
+    done
+else
+    for result in $result_list; do
+        python codes/rank_formula.py --output_file pred_"$result".csv --data_a "$data_A" --data_b "$data_B" --model_name "$model_name" --n_samples "$n_samples" --validation_data training_data/"$result"_train/validation_data.csv --labels "$labels"
+    done
+fi

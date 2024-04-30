@@ -10,7 +10,7 @@ parser.add_argument(
     "--results_file",
     type=str,
     help="Path to the file containing the DD results. Must be csv",
-    required=True,
+    required=False,
 )
 parser.add_argument(
     "--output_file",
@@ -40,14 +40,21 @@ parser.add_argument(
     "--n_samples",
     type=int,
     help="The number of different samples from which the features will be extracted.",
-    required=True,
+    required=False,
 )
 parser.add_argument(
     "--validation_data",
     type=str,
     help="Name of file containing the set for validation.",
-    required=True,
+    required=False,
 )
+parser.add_argument(
+        "--labels",
+        type=str,
+        help="Kind of labels: options are: 'ABC' or 'logk'. Default is 'logk'",
+        default="logk",
+        required=False,
+    )
 args = parser.parse_args()
 
 
@@ -236,7 +243,7 @@ def prediction_rank1(df, out_file):
         pred_df.to_csv("output/" + out_file)
     return pred_df
 
-def rank_by_forest_model(model,validation_data,out_file):
+def rank_by_forest_model_ABC(model,validation_data,out_file):
     # load the model from the saved file
     clf = load(f'model/{model}') 
 
@@ -286,7 +293,7 @@ def rank_by_forest_model(model,validation_data,out_file):
 
     return pred_df
 
-def rank_by_svc_model(model,validation_data,out_file):
+def rank_by_svc_model_ABC(model,validation_data,out_file):
     # load the model from the saved file
     clf = load(f'model/{model}') 
 
@@ -344,17 +351,77 @@ def rank_by_svc_model(model,validation_data,out_file):
 
     return pred_df
 
+
+def rank_by_forest_model_logk(model,validation_data,out_file):
+    # load the model from the saved file
+    clf = load(f'model/{model}') 
+
+    # load the validation data
+    val_df = pd.read_csv(f'model/{validation_data}')
+
+    pred_df = pd.DataFrame()
+
+    ids = val_df['ID']
+    val_df = val_df.drop('ID',axis=1)
+    exp_pred = val_df['Experimental Pred']
+    val_df = val_df.drop('Experimental Pred',axis=1)
+    prot_a = []
+    prot_b = []
+    ligs = []
+    X_val = val_df.values
+
+    # Scale the data 
+    feature_scaler = StandardScaler()
+    X_val = feature_scaler.fit_transform(X_val)
+    y_pred = clf.predict(X_val)
+
+    for i,id in enumerate(ids):
+        id = id.split('_')
+        if (exp_pred[i] >= 0):
+            prot_a.append(id[0])
+            prot_b.append(id[1])
+        elif exp_pred[i] < 0:
+            prot_a.append(id[1])
+            prot_b.append(id[0])
+        ligs.append(id[2])
+    
+    y_pred = clf.predict(val_df.values)
+
+
+    pred_df['Prot A ID'] = prot_a
+    pred_df['Prot B ID'] = prot_b
+    pred_df['Ligand ID'] = ligs
+
+    pred_df['Experimental Pred'] = exp_pred
+    pred_df['Prediction'] = y_pred
+
+    # print(exp_pred)
+    # print(y_pred)
+
+    ac = clf.score(X_val, exp_pred)
+    print(f'Score of the model: {ac:.3f}')
+    pred_df.to_csv(f'output/{out_file}')
+
+    return pred_df
+
     
 
 
 
 
 if __name__ == "__main__":
-    print(f"Ranking {args.results_file.split('/')[-1]} values...")
-    df = pd.read_csv(args.results_file)
+    
     dfa = pd.read_csv(args.data_a)
     dfb = pd.read_csv(args.data_b)
 
-    # df = prediction_rank1(df, args.output_file)
-    # df = rank_by_forest_model(args.model_name,'validation_data.csv',args.output_file)
-    df =rank_by_svc_model(args.model_name,'validation_data.csv',args.output_file)
+    if args.model_name == "None":
+        print(f"Ranking {args.results_file.split('/')[-1]} values...")
+        df = pd.read_csv(args.results_file)
+        df = prediction_rank1(df, args.output_file)
+    else:
+        print(f"Ranking using {args.model_name.split('.')[0]}... ({args.labels})")
+        print(f"\t --> Validation data from: {args.validation_data.split('/')[1]}")
+        if args.labels == 'logk':
+            df = rank_by_forest_model_logk(args.model_name,args.validation_data,args.output_file)
+        elif args.labels == 'ABC':
+            df = rank_by_forest_model_ABC(args.model_name,args.validation_data,args.output_file)

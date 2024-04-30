@@ -14,9 +14,9 @@ fi
 INDEX=0
 for pred in $pred_list; do
     if [ $INDEX == 0 ]; then
-        python codes/plots.py --data_a "$data_A" --data_b "$data_B" --threshold "$th" --predictions output/"$pred" --failed_file "$failed" --plot_th $plot_th 
+        python codes/plots.py --data_a "$data_A" --data_b "$data_B" --threshold "$th" --predictions output/"$pred" --failed_file "$failed" --plot_th $plot_th --labels "$labels"
     else
-        python codes/plots.py --data_a "$data_A" --data_b "$data_B" --threshold "$th" --predictions output/"$pred" --failed_file "$failed" --plot_th $plot_th
+        python codes/plots.py --data_a "$data_A" --data_b "$data_B" --threshold "$th" --predictions output/"$pred" --failed_file "$failed" --plot_th $plot_th --labels "$labels"
     fi
     let INDEX=${INDEX}+1
 done

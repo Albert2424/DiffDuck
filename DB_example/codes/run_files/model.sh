@@ -23,7 +23,7 @@ else
     echo 'Starting forest training... '
     for dir in $(ls -p model/training_data | grep /); do
         python codes/generate_forest_model.py --data model/training_data/"$dir" --n_samples "$n_samples"  --model_name "$model_name" --labels "$labels"
-        # python codes/svm_model.py --data model/training_data/"$dir" --n_samples "$n_samples"  --model_name "$model_name"
+        # python codes/svm_model.py --data model/training_data/"$dir" --n_samples "$n_samples"  --model_name "$model_name" --labels "$labels"
     done
 fi
 
