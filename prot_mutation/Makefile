@@ -4,7 +4,7 @@ help:
 	@echo ''
 	@echo -e '######################## HELP ##########################'
 	@echo ''
-	@echo -e '>>> Usage: peligan [\033[1m\033[31moptions\033[0m]'
+	@echo -e '>>> Usage: peligand [\033[1m\033[31moptions\033[0m]'
 	@echo ''
 	@echo -e '    \033[1m\033[31mddi\033[0m: generates an input for DD.' 
 

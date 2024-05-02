@@ -62,6 +62,11 @@ def generate_input(structure_dir, smiles, run_name):
     # Get all the structures
     structures = os.listdir(structure_dir)
     
+    try:
+        os.mkdir(f'proteins/paired_structures/{run_name}')
+    except:
+        pass
+    
     n_structures = len(structures)
 
     # Generate all possible pairs
@@ -82,11 +87,11 @@ def generate_input(structure_dir, smiles, run_name):
         prot_b = structures[pair[1]]
         id = f"{prot_a.split('.')[0]}_{prot_b.split('.')[0]}"
 
-        new_pdb(f'proteins/paired_structures/{id}.pdb', f'proteins/protein_structures/{prot_a}', f'proteins/protein_structures/{prot_b}')
+        new_pdb(f'proteins/paired_structures/{run_name}/{id}.pdb', f'{structure_dir}/{prot_a}', f'{structure_dir}/{prot_b}')
 
         ids.append(id)
         s.append(smiles)
-        p.append(os.path.abspath(f'proteins/paired_structures/{id}.pdb'))
+        p.append(os.path.abspath(f'proteins/paired_structures/{run_name}/{id}.pdb'))
 
     input['complex_name'] = ids
     input['ligand_description'] = s
@@ -102,4 +107,4 @@ if __name__ == '__main__':
     args = args_parser()
     print('')
     print(f'Generating input for {args.run_name}')
-    generate_input('proteins/protein_structures',args.SMILES,args.run_name)
+    generate_input(f'proteins/protein_structures/{args.run_name}',args.SMILES,args.run_name)
