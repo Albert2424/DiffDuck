@@ -1,4 +1,4 @@
-.PHONY: run help plot rank cdb model new_db docking file_prep analysis
+.PHONY: run help plot rank cdb model new_db docking file_prep analysis fold
 
 help:
 	@echo ''
@@ -19,6 +19,9 @@ help:
 	@echo ''
 	@echo -e '         \033[1m\033[31mplot\033[0m: Plots the results after ranking the results.'
 	@echo ''
+	@echo -e '         \033[1m\033[31mfold\033[0m: generates the structures with AlphaFold, ' 
+	@echo -e '\tDeppFold & OmegaFold.'
+	@echo ''
 	@echo -e '    \033[1m\033[31mfile_prep\033[0m: Generates the files and PDB necessary to'
 	@echo -e '\trun the docking program.'
 	@echo ''
@@ -31,6 +34,8 @@ help:
 	@echo -e '\ta model for ranking the DiffDock results. In order to'
 	@echo -e '\tsolely run the models, data_A.csv and data_B.csv are'
 	@echo -e '\tneeded. Use diffduck cdb in order to generate them.'
+	@echo ''
+	@echo -e '          \033[1m\033[31mddi\033[0m: generates an input for DD.' 
 	@echo ''
 	@echo -e '########################################################'
 	@echo ''
@@ -55,7 +60,12 @@ docking:
 
 analysis:
 	@./codes/run_files/analysis.sh
-	
+
+ddi:
+	@./codes/run_files/c_i.sh
+
+fold:
+	@./codes/run_files/structures.sh
 
 run:cdb rank plot file_prep pred_ligands analysis model
 

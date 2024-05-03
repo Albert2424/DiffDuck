@@ -418,9 +418,9 @@ if __name__ == "__main__":
 
         # select the useful rows of the database
         df = clean_df(
-            df
+            df, AF=True
         )  # --> data_prot.csv can be used for searching in the training database (PDBBind) the matching sequences.
-
+        
         # Print the similarity of the chains among each other for every ligand
         # seq_similarity(df)
         file_drop = args.match_file
