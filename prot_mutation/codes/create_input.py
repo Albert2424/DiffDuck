@@ -22,7 +22,7 @@ def args_parser():
     args = parser.parse_args()
     return args
 
-def new_pdb(output_pdb, prot_a, prot_b, separate_chains=[10,0,0]):
+def new_pdb(output_pdb, prot_a, prot_b, separate_chains=[10,0,0], verbose=0):
     """
     This function concatenates multiple mdtraj objects into a single PDB file spacing them by a factor.
 
@@ -55,50 +55,56 @@ def new_pdb(output_pdb, prot_a, prot_b, separate_chains=[10,0,0]):
     merged_pdb = md.Trajectory(xyz=merged_xyz, topology=merged_top) 
 
     merged_pdb.save(f"{output_pdb}")
-    print(f'File {output_pdb} generated successfully')
+    if verbose > 0:
+        print(f'File {output_pdb} generated successfully')
 
 def generate_input(structure_dir, smiles, run_name):
 
     # Get all the structures
-    structures = os.listdir(structure_dir)
-    
-    try:
-        os.mkdir(f'proteins/paired_structures/{run_name}')
-    except:
-        pass
-    
-    n_structures = len(structures)
+    folders = ['AF','DF', 'OF']
+    for f in folders:
+        files = os.listdir(f'protein_structures/{run_name}/{f}')
 
-    # Generate all possible pairs
-    ind = np.arange(n_structures)
-    pair_ind = list(combinations(ind, 2))
+        try:
+            os.mkdir(f'protein_structures/{run_name}/merged_structures')
+            os.mkdir(f'protein_structures/{run_name}/merged_structures/AF')
+            os.mkdir(f'protein_structures/{run_name}/merged_structures/DF')
+            os.mkdir(f'protein_structures/{run_name}/merged_structures/OF')
+        except:
+            pass
+        
+        n_structures = len(files)
 
-    print(f'--> Using {n_structures} structures to generate {len(pair_ind)} different possible pairs.')
+        # Generate all possible pairs
+        ind = np.arange(n_structures)
+        pair_ind = list(combinations(ind, 2))
 
-    # Generate the input file
-    input = pd.DataFrame(columns=['complex_name','ligand_description','protein_path','protein_sequence'])
-    ids = []
-    s = []
-    p = []
+        print(f' {f} --> Using {n_structures} structures to generate {len(pair_ind)} different possible pairs.')
+
+        # Generate the input file
+        input = pd.DataFrame(columns=['complex_name','ligand_description','protein_path','protein_sequence'])
+        ids = []
+        s = []
+        p = []
 
 
-    for pair in pair_ind:
-        prot_a = structures[pair[0]]
-        prot_b = structures[pair[1]]
-        id = f"{prot_a.split('.')[0]}_{prot_b.split('.')[0]}"
+        for pair in pair_ind:
+            prot_a = files[pair[0]]
+            prot_b = files[pair[1]]
+            id = f"{prot_a.split('.')[0]}_{prot_b.split('.')[0]}"
 
-        new_pdb(f'proteins/paired_structures/{run_name}/{id}.pdb', f'{structure_dir}/{prot_a}', f'{structure_dir}/{prot_b}')
+            new_pdb(f'protein_structures/{run_name}/merged_structures/{f}/{id}.pdb', f'{structure_dir}/{f}/{prot_a}', f'{structure_dir}/{f}/{prot_b}')
 
-        ids.append(id)
-        s.append(smiles)
-        p.append(os.path.abspath(f'proteins/paired_structures/{run_name}/{id}.pdb'))
+            ids.append(id)
+            s.append(smiles)
+            p.append(os.path.abspath(f'protein_structures/{run_name}/merged_structures/{f}/{id}.pdb'))
 
-    input['complex_name'] = ids
-    input['ligand_description'] = s
-    input['protein_path'] = p
+        input['complex_name'] = ids
+        input['ligand_description'] = s
+        input['protein_path'] = p
 
-    input.to_csv(f'inputs/input_{run_name}.csv', index=False)
-
+        input.to_csv(f'inputs/docking_{run_name}_{f}_input.csv', index=False)
+        print(f'\t\t --> docking_{run_name}_{f}_input generated\n')
     
 
 
@@ -107,4 +113,5 @@ if __name__ == '__main__':
     args = args_parser()
     print('')
     print(f'Generating input for {args.run_name}')
-    generate_input(f'proteins/protein_structures/{args.run_name}',args.SMILES,args.run_name)
+    
+    generate_input(f'protein_structures/{args.run_name}',args.SMILES,args.run_name)

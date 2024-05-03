@@ -1,4 +1,4 @@
-.PHONY: help docking_input
+.PHONY: help clean ddi
 
 help:
 	@echo ''
@@ -14,3 +14,7 @@ help:
 
 ddi:
 	@./codes/run_files/c_i.sh
+clean: 
+	@rm -rf proteins/paired_structures/*
+	@rm -rf results/*
+	@rm -f inputs/*
