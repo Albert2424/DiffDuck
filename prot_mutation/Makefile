@@ -1,4 +1,4 @@
-.PHONY: help clean ddi
+.PHONY: help clean ddi sbatch_docking analysis structures
 
 help:
 	@echo ''
@@ -6,17 +6,34 @@ help:
 	@echo ''
 	@echo -e '>>> Usage: peligand [\033[1m\033[31moptions\033[0m]'
 	@echo ''
-	@echo -e '    \033[1m\033[31mddi\033[0m: generates an input for the performance of the docking.' 
+	@echo -e '    \033[1m\033[31mfold\033[0m: generates the structures with AlphaFold, ' 
+	@echo -e '\tDeppFold & OmegaFold.'
+	@echo ''
+	@echo -e '     \033[1m\033[31mddi\033[0m: generates an input for the performance of the docking.' 
+	@echo ''
+	@echo -e ' \033[1m\033[31mdocking\033[0m: Uses the docking program selected to'
+	@echo -e '\tpredict the ligand posses for the protein complex given.'
+	@echo ''
+	@echo -e '\033[1m\033[31manalysis\033[0m: Analyzes the results of the docking program.'
 	@echo ''
 	@echo -e '    \033[1m\033[31mrank\033[0m: ranks the results of the docking simulations.' 
 	@echo ''
-	@echo -e '    \033[1m\033[31mmutate\033[0m: Performs n_mutations single aa mutations to the protein.' 
+	@echo -e '  \033[1m\033[31mmutate\033[0m: Performs n_mutations single aa mutations to the protein.' 
 	@echo ''
 	@echo -e '########################################################'
 	@echo ''
 
+docking:
+	@./codes/run_files/docking_sbatch.sh
+
+analysis:
+	@./codes/run_files/analysis.sh
+
 ddi:
 	@./codes/run_files/c_i.sh
+
+fold:
+	@./codes/run_files/structures.sh
 
 rank:
 	@./codes/run_files/rank.sh
