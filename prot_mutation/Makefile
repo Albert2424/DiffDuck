@@ -24,7 +24,7 @@ help:
 	@echo ''
 
 docking:
-	@./codes/run_files/sbatch_docking.sh
+	@./codes/run_files/docking_sbatch.sh
 
 analysis:
 	@./codes/run_files/analysis.sh

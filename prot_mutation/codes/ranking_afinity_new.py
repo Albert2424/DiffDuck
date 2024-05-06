@@ -81,7 +81,7 @@ def extract_confidence(filename):
     The confidence value as a string, or 0 if no confidence value is found.
     """
 
-    match = re.search(r'confidence(-?[\d].[\d][\d])', filename)
+    match = re.search(r'confidence(-?[\d]+.[\d][\d])', filename)
     return str(match.group(1)) if match else 0
 
 def calculate_distances(prot, ligand):
