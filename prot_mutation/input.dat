@@ -1,7 +1,8 @@
 SMILES='CNCC1=CC=C(C=C1)C2=C3CCNC(=O)C4=C3C(=CC(=C4)F)N2'
-run_name="degrado"
+run_name="FABP"
 
 ############# MUTATIONS #############
 
 n_mutations=10
+ds=2,3,4,9     # POSITIONS (not index) of the aa of the docking site. i.e. 2,3,4,9,15
 
