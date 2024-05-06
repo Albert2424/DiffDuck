@@ -15,6 +15,7 @@ export PYTHONPATH=$DD_path #path to where DiffDock is installed
 dir=$(pwd)
 dd_dir=$DD_path
 cd $dd_dir
+mkdir -p results/results_dd/$run_name
 
 if [ $docking_program == 'DD' ]; then
 
@@ -23,7 +24,7 @@ if [ $docking_program == 'DD' ]; then
 
     python -W ignore inference.py \
     --protein_ligand_csv $dir/inputs/docking_${run_name}_input.csv \
-    --out_dir $dir/output/results_dd/$run_name \
+    --out_dir $dir/results/results_dd/$run_name \
     --inference_steps 20 \
     --samples_per_complex $samples \
     --batch_size 10 \
@@ -38,10 +39,10 @@ if [ $docking_program == 'DD_L' ]; then
     echo "Starting Diffdock-L..."
     date
 
-    python -W ignore inference.py \
+    python -W ignore -m inference \
     --config default_inference_args.yaml \
     --protein_ligand_csv $dir/inputs/docking_${run_name}_input.csv \
-    --out_dir $dir/output/results_dd/$run_name 
+    --out_dir $dir/results/results_dd/$run_name --samples_per_complex $samples
 fi
 
 if [ $docking_program != 'DD' ] && [ $docking_program != 'DD_L' ]; then
