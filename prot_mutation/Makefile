@@ -6,13 +6,13 @@ help:
 	@echo ''
 	@echo -e '>>> Usage: peligand [\033[1m\033[31moptions\033[0m]'
 	@echo ''
-	@echo -e '    \033[1m\033[31mfold\033[0m: generates the structures with AlphaFold, ' 
-	@echo -e '\tDeppFold & OmegaFold.'
+	@echo -e '    \033[1m\033[31mfold\033[0m: generates the structures with AlphaFold, DeppFold ' 
+	@echo -e '\t& OmegaFold.'
 	@echo ''
 	@echo -e '     \033[1m\033[31mddi\033[0m: generates an input for the performance of the docking.' 
 	@echo ''
-	@echo -e ' \033[1m\033[31mdocking\033[0m: Uses the docking program selected to'
-	@echo -e '\tpredict the ligand posses for the protein complex given.'
+	@echo -e ' \033[1m\033[31mdocking\033[0m: Uses the docking program selected to predict the'
+	@echo -e '\tligand posses for the protein complex given.'
 	@echo ''
 	@echo -e '\033[1m\033[31manalysis\033[0m: Analyzes the results of the docking program.'
 	@echo ''
@@ -27,7 +27,7 @@ docking:
 	@./codes/run_files/docking_sbatch.sh
 
 analysis:
-	@./codes/run_files/analysis.sh
+	@./codes/run_files/analysis_sbatch.sh
 
 ddi:
 	@./codes/run_files/c_i.sh
@@ -42,6 +42,7 @@ mutate:
 	@./codes/run_files/mutate.sh	
 
 clean: 
-	@rm -rf proteins/paired_structures/*
+	@rm -rf protein_structures/*
 	@rm -rf results/*
 	@rm -f inputs/*
+	@mkdir results/figures
