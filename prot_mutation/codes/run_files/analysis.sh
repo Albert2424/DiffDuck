@@ -4,7 +4,7 @@ source input.dat # Source the input variables
 
 echo "Analysing $run_name"
 analysis_counter=0
-result_dir=output/results_dd/$run_name/
+result_dir=results/results_dd/$run_name/
 name_dir=${run_name%%_*}
 fold=${run_name#*_}
 fold=${fold%_*}
@@ -23,7 +23,7 @@ echo "-->Results are in $"$file_name""
 echo "-------------------------------------------------------------------"
 done
 
-cd output/results_dd/${run_name}
+cd results/results_dd/${run_name}
 awk 'FNR==1 && NR!=1{next;}{print}' $(find . -name 'result.csv') > ../../../results/result_${run_name}.csv
 echo " --> Analysis finished"
 echo " --> Results are in results/result_${run_name}.csv"
