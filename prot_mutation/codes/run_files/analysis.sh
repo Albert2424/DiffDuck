@@ -26,4 +26,4 @@ done
 cd output/results_dd/${run_name}
 awk 'FNR==1 && NR!=1{next;}{print}' $(find . -name 'result.csv') > ../../../results/result_${run_name}.csv
 echo " --> Analysis finished"
-echo " --> Results are in DD/result_${run_name}.csv"
+echo " --> Results are in results/result_${run_name}.csv"

@@ -1,10 +1,13 @@
 #!/bin/bash
 
 source input.dat # Source the input variables
+set -e # Exit if any command fails (check_fold_input.py)
 
 dir=$(pwd)
 
 input="$dir/inputs/folding_${run_name}_input.csv"
+python codes/check_fold_input.py $input
+echo "continue ... "
 cd protein_structures/
 mkdir -p ${run_name}
 cd ${run_name}

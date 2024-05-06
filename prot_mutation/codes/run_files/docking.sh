@@ -51,5 +51,5 @@ fi
 cd $dir
 
 if [ $auto_analysis == true ]; then
-    ./analysis.sh
+    ./codes/run_files/analysis.sh
 fi
