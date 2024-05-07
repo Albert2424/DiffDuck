@@ -18,6 +18,8 @@ help:
 	@echo ''
 	@echo -e '    \033[1m\033[31mrank\033[0m: ranks the results of the docking simulations.' 
 	@echo ''
+	@echo -e '    \033[1m\033[31mplot\033[0m: Plots the ranked results of the simulations.' 
+	@echo ''
 	@echo -e '  \033[1m\033[31mmutate\033[0m: Performs n_mutations single aa mutations to the protein.' 
 	@echo ''
 	@echo -e '########################################################'
