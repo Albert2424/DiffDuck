@@ -1,13 +1,21 @@
 #!/bin/bash
 
 source input.dat # Source the input variables
-set -e # Exit if any command fails (check_fold_input.py)
+
+for item in "${folding[@]}"; do
+    # Check if the variable matches the current element
+    if [ "$item" == "AF" ]; then
+        AF=1
+    elif [ "$item" == "DF" ]; then
+        DF=1
+    elif [ "$item" == "OF" ]; then
+        OF=1
+    fi
+done
 
 dir=$(pwd)
 
 input="$dir/inputs/folding_${run_name}_input.csv"
-python codes/check_fold_input.py $input
-echo "continue ... "
 cd protein_structures/
 mkdir -p ${run_name}
 cd ${run_name}
@@ -15,64 +23,74 @@ cd ${run_name}
 #########################################
 #              ALPHAFOLD                #
 #########################################
-mkdir -p AF
-mkdir -p AF/AF_res
 
-colabfold_batch $input "$dir"/protein_structures/"$run_name"/AF
+if [ $AF == 1 ]; then
 
-cd AF && $(cp `ls | grep rank_001 | grep .pdb | xargs` AF_res)
-cd AF_res
-for file in $(ls); do
-    if [[ -f "$file" ]]; then 
-        filename=$(basename "$file")
-        new_filename=$(echo "$filename" | cut -d '_' -f 1)
-        mv "$file" "$new_filename.pdb" 
-    fi
-done
-cd ..
-rm -f *. 
-rm -r $run_name*
-mv AF_res/* .
-rm -r AF_res
-cd ..
+    mkdir -p AF
+    mkdir -p AF/AF_res
+
+    colabfold_batch $input "$dir"/protein_structures/"$run_name"/AF
+
+    cd AF && $(cp `ls | grep rank_001 | grep .pdb | xargs` AF_res)
+    cd AF_res
+    for file in $(ls); do
+        if [[ -f "$file" ]]; then 
+            filename=$(basename "$file")
+            new_filename=$(echo "$filename" | cut -d '_' -f 1)
+            mv "$file" "$new_filename.pdb" 
+        fi
+    done
+    cd ..
+    rm -f *. 
+    rm -r $run_name*
+    mv AF_res/* .
+    rm -r AF_res
+    cd ..
+fi
 
 #########################################
 #               DEEPFOLD                #
 #########################################
-mkdir -p DF
-mkdir -p DF/DF_res
-colabfold_batch --model-type deepfold_v1 $input "$dir"/protein_structures/"$run_name"/DF
 
-cd DF && $(cp `ls | grep rank_001 | grep .pdb | xargs` DF_res)
-cd DF_res
-for file in $(ls); do
-    if [[ -f "$file" ]]; then 
-        filename=$(basename "$file")
-        new_filename=$(echo "$filename" | cut -d '_' -f 1)
-        mv "$file" "$new_filename.pdb" 
-    fi
-done
-cd ..
-rm -f *. 
-rm -r $run_name*
-mv DF_res/* .
-rm -r DF_res
-cd ..
+if [ $DF == 1 ]; then
+    mkdir -p DF
+    mkdir -p DF/DF_res
+    colabfold_batch --model-type deepfold_v1 $input "$dir"/protein_structures/"$run_name"/DF
+
+    cd DF && $(cp `ls | grep rank_001 | grep .pdb | xargs` DF_res)
+    cd DF_res
+    for file in $(ls); do
+        if [[ -f "$file" ]]; then 
+            filename=$(basename "$file")
+            new_filename=$(echo "$filename" | cut -d '_' -f 1)
+            mv "$file" "$new_filename.pdb" 
+        fi
+    done
+    cd ..
+    rm -f *. 
+    rm -r $run_name*
+    mv DF_res/* .
+    rm -r DF_res
+    cd ..
+fi
 
 #########################################
 #              OMEGAFOLD                #
 #########################################
-mkdir -p OF
 
-echo "" >> $input
-while IFS=, read -r num id sequence
-do
-    if [[ $id != "id" ]]
-    then
-        echo ">${id}"
-        echo "${sequence}"
-    fi
-done < $input > input.fasta
+if [ $OF == 1 ]; then
+    mkdir -p OF
 
-omegafold input.fasta "$dir"/protein_structures/"$run_name"/OF
-# rm input.fasta
+    echo "" >> $input
+    while IFS=, read -r num id sequence
+    do
+        if [[ $id != "id" ]]
+        then
+            echo ">${id}"
+            echo "${sequence}"
+        fi
+    done < $input > input.fasta
+
+    omegafold input.fasta "$dir"/protein_structures/"$run_name"/OF
+    # rm input.fasta
+fi
