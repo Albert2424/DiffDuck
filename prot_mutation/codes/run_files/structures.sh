@@ -70,7 +70,15 @@ fi
 if [ $OF == 1 ]; then
     mkdir -p OF
 
-    echo "" >> $input
+    # Check if the last line is empty
+    if [[ -z $(tail -n 1 "$input") ]]
+    then
+        sed -e :a -e '/^\n*$/{$d;N;};/\n$/ba' "$input" > temp.txt
+        mv temp.txt "$input"
+    else
+        echo "" >> "$input"
+    fi
+
     while IFS=, read -r num id sequence
     do
         if [[ $id != "id" ]]
@@ -81,5 +89,5 @@ if [ $OF == 1 ]; then
     done < $input > input.fasta
 
     omegafold input.fasta "$dir"/protein_structures/"$run_name"/OF
-    # rm input.fasta
+    rm input.fasta
 fi
