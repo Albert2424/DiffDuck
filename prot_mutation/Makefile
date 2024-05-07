@@ -39,10 +39,13 @@ rank:
 	@./codes/run_files/rank.sh
 
 mutate:
-	@./codes/run_files/mutate.sh	
+	@./codes/run_files/mutate.sh
+
+plot:
+	@./codes/run_files/plot.sh	
 
 clean: 
 	@rm -rf protein_structures/*
 	@rm -rf results/*
-	@rm -f inputs/*
+	@rm -f inputs/docking_*
 	@mkdir results/figures
