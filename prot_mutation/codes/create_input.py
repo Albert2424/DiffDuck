@@ -60,10 +60,14 @@ def new_pdb(output_pdb, prot_a, prot_b, separate_chains=[10,0,0]):
 def generate_input(structure_dir, smiles, run_name):
 
     # Get all the structures
-    folders = os.listdir(structure_dir)
+    folders = ['AF', 'DF', 'OF']
     for f in folders:
         print(f)
-        files = os.listdir(f'{structure_dir}/{f}')
+        try:
+            files = os.listdir(f'{structure_dir}/{f}')
+            files.sort()
+        except:
+            continue
 
         try:
             os.mkdir(f'protein_structures/{run_name}/merged_structures')
@@ -104,16 +108,11 @@ def generate_input(structure_dir, smiles, run_name):
         input['protein_path'] = p
 
         input.to_csv(f'inputs/docking_{run_name}_{f}_input.csv', index=False)
-        input.to_csv(f'inputs/docking_{run_name}_{f}_L_input.csv', index=False)
-
-
-    
-
 
 
 if __name__ == '__main__':
     args = args_parser()
     print('')
-    print(f'Generating input for {args.run_name}')
+    print(f'Generating docking input for {args.run_name}')
     
     generate_input(f'protein_structures/{args.run_name}',args.SMILES,args.run_name)
