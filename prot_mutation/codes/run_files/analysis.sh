@@ -21,7 +21,7 @@ echo "--> Results are in $file_name"
 echo "-------------------------------------------------------------------"
 done
 
-cd results/results_dd/${run_name}_"$fold"
+cd results/results_dd/${run_name}_$fold
 awk 'FNR==1 && NR!=1{next;}{print}' $(find . -name 'result.csv') > ../../../results/result_${run_name}_$fold.csv
 echo " --> Analysis finished"
 echo " --> Results are in results/result_${run_name}_$fold.csv"
