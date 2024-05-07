@@ -15,6 +15,27 @@ def args_parser():
         help="Name of the job.",
         required=True,
     )
+    parser.add_argument(
+        "--AF",
+        type=int,
+        help="whether AF was used or not. Default is 1 (true)",
+        required=False,
+        default=1
+    )
+    parser.add_argument(
+        "--DF",
+        type=int,
+        help="whether DF was used or not. Default is 1 (true)",
+        required=False,
+        default=1
+    )
+    parser.add_argument(
+        "--OF",
+        type=int,
+        help="whether OF was used or not. Default is 1 (true)",
+        required=False,
+        default=1
+    )
     args = parser.parse_args()
     return args
 
@@ -41,7 +62,7 @@ def plot_best_chain(run_name, fold='all'):
     # df["ID"] = df["ID"].astype(cat1)
 
     data = df.pivot(index="Prot 1", columns="Prot 2", values="Rank")
-
+    print(data)
 
     plt.figure()
     hm = sns.heatmap(
@@ -58,13 +79,23 @@ def plot_best_chain(run_name, fold='all'):
     bbox = dict(boxstyle="round", ec='black', fc=c_list[1], alpha=0.7)
     plt.setp(hm.get_yticklabels(), bbox=bbox)
 
+    plt.title(f'{run_name} ({fold})')
+
     plt.tight_layout()
     plt.savefig(f'results/figures/rank_{run_name}_{fold}.png')
-    plt.show()
+    # plt.show()
 
 
 if __name__ == "__main__":
-    # args = args_parser()
-    # print(f'Plotting ranked predictions from {args.run_name}')
-    # plot_best_chain(args.run_name, 'all')
-    plot_best_chain('FABP', 'all')
+    args = args_parser()
+    print(f'Plotting ranked predictions from {args.run_name}')
+
+    if args.AF == 1:
+        plot_best_chain(args.run_name, 'AF')
+    if args.DF == 1:
+        plot_best_chain(args.run_name, 'DF')
+    if args.OF == 1:
+        plot_best_chain(args.run_name, 'OF')
+
+    plot_best_chain(args.run_name, 'all')
+    # plot_best_chain('FABP', 'all')

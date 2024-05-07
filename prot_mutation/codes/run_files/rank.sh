@@ -1,4 +1,4 @@
 #!/bin/bash
 source input.dat
-
-python codes/rank.py --run_name "$run_name"
+echo "$folding"
+python codes/rank.py --run_name "$run_name" --AF "$AF" --DF "$DF" --OF "$OF"

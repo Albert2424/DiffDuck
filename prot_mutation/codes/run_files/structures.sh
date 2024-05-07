@@ -2,17 +2,6 @@
 
 source input.dat # Source the input variables
 
-for item in "${folding[@]}"; do
-    # Check if the variable matches the current element
-    if [ "$item" == "AF" ]; then
-        AF=1
-    elif [ "$item" == "DF" ]; then
-        DF=1
-    elif [ "$item" == "OF" ]; then
-        OF=1
-    fi
-done
-
 dir=$(pwd)
 
 input="$dir/inputs/folding_${run_name}_input.csv"
