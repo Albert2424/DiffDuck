@@ -64,6 +64,8 @@ def plot_best_chain(run_name, fold='all'):
     data = df.pivot(index="Prot 1", columns="Prot 2", values="Rank")
     data = data.iloc[data.isnull().sum(axis=1).mul(-1).argsort()] # make sure the data is sorted
 
+    data = data.reindex(data.sum().sort_values(ascending=False).index, axis=1)
+
     plt.figure()
     hm = sns.heatmap(
         data,
