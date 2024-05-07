@@ -61,11 +61,11 @@ def plot_best_chain(run_name, fold='all'):
     # cat1 = CategoricalDtype(categories=prot1, ordered=True)
     # df["ID"] = df["ID"].astype(cat1)
 
-    data = df.pivot(index="Prot 1", columns="Prot 2", values="Rank")
+    data = df.pivot(index="Prot 2", columns="Prot 1", values="Rank")
     data = data.iloc[data.isnull().sum(axis=1).mul(-1).argsort()] # make sure the data is sorted
 
-    data = data.reindex(data.sum().sort_values(ascending=False).index, axis=1)
-
+    # data = data.reindex(data.sum().sort_values(ascending=False).index, axis=1)
+ 
     plt.figure()
     hm = sns.heatmap(
         data,
