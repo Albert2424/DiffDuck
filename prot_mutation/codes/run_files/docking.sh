@@ -17,14 +17,16 @@ dd_dir=$DD_path
 cd $dd_dir
 mkdir -p results/results_dd/$run_name
 
+fold=$1
+
 if [ $docking_program == 'DD' ]; then
 
     echo "Starting Diffdock..."
     date
 
     python -W ignore inference.py \
-    --protein_ligand_csv $dir/inputs/docking_${run_name}_input.csv \
-    --out_dir $dir/results/results_dd/$run_name \
+    --protein_ligand_csv $dir/inputs/docking_${run_name}_"$fold"_input.csv \
+    --out_dir $dir/results/results_dd/"$run_name"_"$fold" \
     --inference_steps 20 \
     --samples_per_complex $samples \
     --batch_size 10 \
@@ -41,8 +43,8 @@ if [ $docking_program == 'DD_L' ]; then
 
     python -W ignore -m inference \
     --config default_inference_args.yaml \
-    --protein_ligand_csv $dir/inputs/docking_${run_name}_input.csv \
-    --out_dir $dir/results/results_dd/$run_name --samples_per_complex $samples
+    --protein_ligand_csv $dir/inputs/docking_${run_name}_"$fold"_input.csv \
+    --out_dir $dir/results/results_dd/"$run_name"_"$fold" --samples_per_complex $samples
 fi
 
 if [ $docking_program != 'DD' ] && [ $docking_program != 'DD_L' ]; then
