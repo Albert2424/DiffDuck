@@ -6,8 +6,7 @@ echo "Analysing $run_name"
 analysis_counter=0
 result_dir=results/results_dd/$run_name/
 name_dir=${run_name%%_*}
-fold=${run_name#*_}
-fold=${fold%_*}
+fold=$1
 structure_dir=protein_structures/$name_dir/merged_structures/$fold
 for folder in $result_dir*; do
     if [ -d "$folder" ]; then
@@ -18,8 +17,8 @@ for folder in $result_dir*; do
         analysis_counter=$((analysis_counter+1))
     fi
 
-echo "-->Done "$folder""
-echo "-->Results are in $"$file_name""
+echo "--> Done "$folder""
+echo "--> Results are in $"$file_name""
 echo "-------------------------------------------------------------------"
 done
 
