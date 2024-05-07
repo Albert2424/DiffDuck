@@ -1,13 +1,15 @@
 ############# STRUCTURES #############
 
-folding=("AF" "DF")
+AF=1
+DF=0
+OF=0
 
 ############### DD PARAMETERS ###############
 
 n_replica=1                                     # Number of times repeting the Diffdock running
 docking_program=DD_L                              # Set which docking_program do you want to use (DD=Diffdock, DD_L=Diffdock-L)
 samples=60                                      # Number of samples per complex predicted #DD-L (default_inference_args.yaml)
-run_name=FABP_AF                                # Name of the prediction, the SLURM job and the results file in /DD will ahve this name 
+run_name=MBP                                # Name of the prediction, the SLURM job and the results file in /DD will ahve this name 
 DD_path=/home/albert/DiffDock                   # Path where DiffDock or DiffDock-L are located
 auto_analysis=true                              # Analyse the docking results when the docking finish
 SMILES='C(C1C(C(C(C(O1)OC2C(OC(C(C2O)O)O)CO)O)O)O)O'
