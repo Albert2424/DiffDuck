@@ -34,6 +34,7 @@ if [ $AF == 1 ]; then
     rm -r $run_name*
     mv AF_res/* .
     rm -r AF_res
+    rm -f cite.bibtex log.txt config.json
     cd ..
 fi
 
@@ -60,6 +61,7 @@ if [ $DF == 1 ]; then
     rm -r $run_name*
     mv DF_res/* .
     rm -r DF_res
+    rm -f cite.bibtex log.txt config.json
     cd ..
 fi
 
