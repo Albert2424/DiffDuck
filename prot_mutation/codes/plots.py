@@ -76,9 +76,9 @@ def plot_best_chain(run_name, fold='all'):
         vmin=0,
         vmax=1,
     )
-    bbox = dict(boxstyle="round", ec='black', fc=c_list[0], alpha=0.7)
-    plt.setp(hm.get_xticklabels(), bbox=bbox)
     bbox = dict(boxstyle="round", ec='black', fc=c_list[1], alpha=0.7)
+    plt.setp(hm.get_xticklabels(), bbox=bbox)
+    bbox = dict(boxstyle="round", ec='black', fc=c_list[0], alpha=0.7)
     plt.setp(hm.get_yticklabels(), bbox=bbox)
 
     plt.title(f'{run_name} ({fold})')
