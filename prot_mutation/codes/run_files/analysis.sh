@@ -4,10 +4,9 @@ source input.dat # Source the input variables
 
 echo "Analysing $run_name"
 analysis_counter=0
-result_dir=results/results_dd/$run_name/
-name_dir=${run_name%%_*}
 fold=$1
-structure_dir=protein_structures/$name_dir/merged_structures/$fold
+result_dir=results/results_dd/"$run_name"_"$fold"/
+structure_dir=protein_structures/$run_name/merged_structures/$fold
 for folder in $result_dir*; do
     if [ -d "$folder" ]; then
         echo "Analysing "$folder""
@@ -17,12 +16,12 @@ for folder in $result_dir*; do
         analysis_counter=$((analysis_counter+1))
     fi
 
-echo "--> Done "$folder""
-echo "--> Results are in $"$file_name""
+echo "--> Done $folder"
+echo "--> Results are in $file_name"
 echo "-------------------------------------------------------------------"
 done
 
-cd results/results_dd/${run_name}
-awk 'FNR==1 && NR!=1{next;}{print}' $(find . -name 'result.csv') > ../../../results/result_${run_name}.csv
+cd results/results_dd/${run_name}_"$fold"
+awk 'FNR==1 && NR!=1{next;}{print}' $(find . -name 'result.csv') > ../../../results/result_${run_name}_$fold.csv
 echo " --> Analysis finished"
-echo " --> Results are in results/result_${run_name}.csv"
+echo " --> Results are in results/result_${run_name}_$fold.csv"
