@@ -70,9 +70,9 @@ def plot_best_chain(run_name, fold='all'):
         vmin=0,
         vmax=1,
     )
-    bbox = dict(boxstyle="round", ec='black', fc=c_list[1], alpha=0.7)
-    plt.setp(hm.get_xticklabels(), bbox=bbox)
     bbox = dict(boxstyle="round", ec='black', fc=c_list[0], alpha=0.7)
+    plt.setp(hm.get_xticklabels(), bbox=bbox)
+    bbox = dict(boxstyle="round", ec='black', fc=c_list[1], alpha=0.7)
     plt.setp(hm.get_yticklabels(), bbox=bbox)
 
     plt.title(f'{run_name} ({fold})')
@@ -98,7 +98,7 @@ def plot_best_chain_guess(run_name, fold='all'):
     df['Prot 2'] = prot2
 
 
-    most_affine = pd.read_csv(f"results/most_affine_{run_name}_dummy.csv")
+    most_affine = pd.read_csv(f"results/most_affine_{run_name}.csv")
     df['Affine'] = np.where(most_affine['Affine'].values-np.round(df['Rank'].values)==0,0,1)
     c_list = cm.cividis(np.linspace(0, 1, 2))
     c_list2 = cm.PiYG(np.linspace(0, 1, 2))
@@ -170,9 +170,9 @@ def plot_best_chain_guess(run_name, fold='all'):
 
 
 
-    bbox = dict(boxstyle="round", ec='black', fc=c_list[1], alpha=0.7)
-    plt.setp(hm.get_xticklabels(), bbox=bbox)
     bbox = dict(boxstyle="round", ec='black', fc=c_list[0], alpha=0.7)
+    plt.setp(hm.get_xticklabels(), bbox=bbox)
+    bbox = dict(boxstyle="round", ec='black', fc=c_list[1], alpha=0.7)
     plt.setp(hm.get_yticklabels(), bbox=bbox)
 
     plt.title(f'{run_name} ({fold})')
