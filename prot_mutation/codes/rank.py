@@ -33,11 +33,18 @@ def args_parser():
         required=False,
         default=1,
     )
+    parser.add_argument(
+        "--n_samples",
+        type=int,
+        help="How many samples are being considered for ranking",
+        required=False,
+        default=1,
+    )
     args = parser.parse_args()
     return args
 
 
-def rank_docking_all(run_name, AF, DF, OF):
+def rank_docking_all(run_name, AF, DF, OF, n_samples):
     results = [
         f"result_{run_name}_AF.csv" * AF,
         f"result_{run_name}_DF.csv" * DF,
@@ -60,7 +67,7 @@ def rank_docking_all(run_name, AF, DF, OF):
             rank_total = np.empty(len(ids))
 
         for id in ids:
-            rank.append(np.sum(res[res["ID"] == id]["Chain(A=0)(B=1)"].values[:5]) / 5)
+            rank.append(np.sum(res[res["ID"] == id]["Chain(A=0)(B=1)"].values[:n_samples]) / n_samples)
             fold.append(r.split(".")[0].split("_")[-1])
         # for i in range(len(rank)):
         #     print(ids[i],rank[i])
@@ -76,7 +83,7 @@ def rank_docking_all(run_name, AF, DF, OF):
     ranked.to_csv(f"results/ranked_{run_name}_all.csv", index=False)
 
 
-def rank_one(run_name, fold="AF"):
+def rank_one(run_name, n_samples, fold="AF"):
     results = f"results/result_{run_name}_{fold}.csv"
 
     res = pd.read_csv(results)
@@ -86,7 +93,7 @@ def rank_one(run_name, fold="AF"):
 
     rank = []
     for id in ids:
-        rank.append(np.sum(res[res["ID"] == id]["Chain(A=0)(B=1)"].values[:5]) / 5)
+        rank.append(np.sum(res[res["ID"] == id]["Chain(A=0)(B=1)"].values[:n_samples]) / n_samples)
 
     # for i in range(len(rank)):
     #     print(ids[i],rank[i])
@@ -105,10 +112,10 @@ if __name__ == "__main__":
     print(f" Ranking docking results from {args.run_name}...")
 
     if args.AF == 1:
-        rank_one(args.run_name)
+        rank_one(args.run_name, args.n_samples)
     if args.DF == 1:
-        rank_one(args.run_name, fold="DF")
+        rank_one(args.run_name, args.n_samples, fold="DF")
     if args.OF == 1:
-        rank_one(args.run_name, fold="OF")
+        rank_one(args.run_name, args.n_samples, fold="OF")
 
-    rank_docking_all(args.run_name, args.AF, args.DF, args.OF)
+    rank_docking_all(args.run_name, args.AF, args.DF, args.OF, args.n_samples)
