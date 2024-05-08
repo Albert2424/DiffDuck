@@ -112,6 +112,7 @@ def generate_input(structure_dir, smiles, run_name):
     most_affine = pd.DataFrame(columns=['ID','Affine'])
     most_affine['ID'] = ids
     most_affine['Affine'] = [1 for i in range(len(ids))]
+    most_affine['K1/K2'] = [1 for i in range(len(ids))]
     most_affine.to_csv(f'results/most_affine_{run_name}_dummy.csv', index=False)
 
 if __name__ == '__main__':
