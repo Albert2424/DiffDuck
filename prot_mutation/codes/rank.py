@@ -46,16 +46,16 @@ def args_parser():
 
 def rank_docking_all(run_name, AF, DF, OF, n_samples):
     results = [
-        f"result_{run_name}_AF.csv" * AF,
-        f"result_{run_name}_DF.csv" * DF,
-        f"result_{run_name}_OF.csv" * OF,
+        f"docking_{run_name}_AF.csv" * AF,
+        f"docking_{run_name}_DF.csv" * DF,
+        f"docking_{run_name}_OF.csv" * OF,
     ]
 
-    results = [i for i in results if i != ''] # extract all results that don't exist
+    results = [i for i in results if i != ""]  # extract all results that don't exist
 
     rank_total = np.array([])
     fold = []
-    for i,r in enumerate(results):
+    for i, r in enumerate(results):
         rank = []
 
         res = pd.read_csv(f"results/{r}")
@@ -67,7 +67,10 @@ def rank_docking_all(run_name, AF, DF, OF, n_samples):
             rank_total = np.empty(len(ids))
 
         for id in ids:
-            rank.append(np.sum(res[res["ID"] == id]["Chain(A=0)(B=1)"].values[:n_samples]) / n_samples)
+            rank.append(
+                np.sum(res[res["ID"] == id]["Chain(A=0)(B=1)"].values[:n_samples])
+                / n_samples
+            )
             fold.append(r.split(".")[0].split("_")[-1])
         # for i in range(len(rank)):
         #     print(ids[i],rank[i])
@@ -84,7 +87,7 @@ def rank_docking_all(run_name, AF, DF, OF, n_samples):
 
 
 def rank_one(run_name, n_samples, fold="AF"):
-    results = f"results/result_{run_name}_{fold}.csv"
+    results = f"results/docking_{run_name}_{fold}.csv"
 
     res = pd.read_csv(results)
     # samples = len(res[res['ID'] == res['ID'].iloc[0]])
@@ -93,7 +96,10 @@ def rank_one(run_name, n_samples, fold="AF"):
 
     rank = []
     for id in ids:
-        rank.append(np.sum(res[res["ID"] == id]["Chain(A=0)(B=1)"].values[:n_samples]) / n_samples)
+        rank.append(
+            np.sum(res[res["ID"] == id]["Chain(A=0)(B=1)"].values[:n_samples])
+            / n_samples
+        )
 
     # for i in range(len(rank)):
     #     print(ids[i],rank[i])
