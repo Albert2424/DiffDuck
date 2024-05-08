@@ -5,7 +5,7 @@ directory=$(pwd)
 # Activate the conda environment for DD if necessary
 
 if [[ $(conda env list | grep "*" | awk '{print$1}') != 'diffdock' ]]; then
-    echo "Activating conda environment"
+    echo "Activating DiffDock conda environment"
 	conda activate diffdock
 fi
 echo ''
@@ -45,6 +45,7 @@ if [ -d "results" ]; then
 else
     # If it doesn't exist, create it
     mkdir results
+    mkdir results/figures
 fi
 echo '----------------------------------------------------------------'
 
