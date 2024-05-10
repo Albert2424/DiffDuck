@@ -64,8 +64,9 @@ def plot_best_chain(run_name, fold="all"):
         data.isnull().sum(axis=1).mul(-1).argsort()
     ]  # make sure the data is sorted
 
-    plot_num = np.sum(df['Rank'].values*np.where(df['Affine'].values==0,1,0))/((data.shape[0]+1)*data.shape[0]/2)
-
+    plot_num = np.sum(df["Rank"].values * np.where(df["Affine"].values == 0, 1, 0)) / (
+        (data.shape[0] + 1) * data.shape[0] / 2
+    )
 
     plt.figure()
     hm = sns.heatmap(
@@ -117,7 +118,9 @@ def plot_best_chain_guess(run_name, fold="all"):
         data.isnull().sum(axis=1).mul(-1).argsort()
     ]  # make sure the data is sorted
 
-    plot_num = np.sum(df['Rank'].values*np.where(df['Affine'].values==0,1,0))/((data.shape[0]+1)*data.shape[0]/2)
+    plot_num = np.sum(df["Rank"].values * np.where(df["Affine"].values == 0, 1, 0)) / (
+        (data.shape[0] + 1) * data.shape[0] / 2
+    )
 
     data_aff = df.pivot(index="Prot 2", columns="Prot 1", values="Affine")
     data_aff = data_aff.iloc[data_aff.isnull().sum(axis=1).mul(-1).argsort()]
@@ -144,7 +147,7 @@ def plot_best_chain_guess(run_name, fold="all"):
         vmax=1,
     )
 
-    if (data.shape[1]-3) > 0:
+    if (data.shape[1] - 3) > 0:
         for i in range(data.shape[0]):
             for j in range(data.shape[1]):
                 if not np.isnan(xpos[i][j]):
@@ -153,7 +156,7 @@ def plot_best_chain_guess(run_name, fold="all"):
                             xpos[i][j] + 0.3,
                             ypos[i][j] - 0.3,
                             "   ",
-                            size=10-2*(data.shape[1]-3),
+                            size=10 - 2 * (data.shape[1] - 3),
                             bbox=dict(
                                 boxstyle="round",
                                 ec="black",
@@ -165,7 +168,7 @@ def plot_best_chain_guess(run_name, fold="all"):
                             xpos[i][j] + 0.3,
                             ypos[i][j] - 0.3,
                             "   ",
-                            size=10-2*(data.shape[1]-3),
+                            size=10 - 2 * (data.shape[1] - 3),
                             bbox=dict(
                                 boxstyle="round",
                                 ec="black",
@@ -187,7 +190,10 @@ def plot_best_chain_guess(run_name, fold="all"):
     )
     plt.text(
         xpos[data.shape[1] - 1][data.shape[1] - 1] + 0.2,
-        xpos[data.shape[1] - 1][data.shape[1] - 1] - data.shape[1] + 1+0.1*(data.shape[1]-3),
+        xpos[data.shape[1] - 1][data.shape[1] - 1]
+        - data.shape[1]
+        + 1
+        + 0.1 * (data.shape[1] - 3),
         f"{len(df[df['Affine']==0])}",
         size=15,
         bbox=dict(
@@ -209,17 +215,18 @@ def plot_best_chain_guess(run_name, fold="all"):
     plt.savefig(f"results/figures/rank_{run_name}_{fold}.png")
     # plt.show()
 
-def plot_logk(run_name,fold):
+
+def plot_logk(run_name, fold):
 
     c_list = cm.coolwarm(np.linspace(0, 1, 2))
-    
+
     df = pd.read_csv(f"results/ranked_{run_name}_{fold}.csv")
     ids = df["ID"].values
     most_affine = pd.read_csv(f"results/most_affine_{run_name}.csv")
 
-    ratios = np.log10(most_affine['K1/K2'].values)
-    rank = df['Rank'].values
-    rank = np.where(rank > 0.5,rank,1-rank)
+    ratios = np.log10(most_affine["K1/K2"].values)
+    rank = df["Rank"].values
+    rank = np.where(rank > 0.5, rank, 1 - rank)
 
     df["Affine"] = np.where(
         most_affine["Affine"].values - np.round(df["Rank"].values) == 0, 0, 1
@@ -227,21 +234,22 @@ def plot_logk(run_name,fold):
 
     plt.figure()
     plt.scatter(rank, ratios, cmap="PiYG_r", c=df["Affine"].values)
-    plt.hlines(0.05,min(rank)-0.2,max(rank)+0.2,linestyles='--', colors=c_list[0])
-    plt.hlines(-0.05,min(rank)-0.2,max(rank)+0.2,linestyles='--', colors=c_list[0])
-    
+    plt.hlines(
+        0.05, min(rank) - 0.2, max(rank) + 0.2, linestyles="--", colors=c_list[0]
+    )
+    plt.hlines(
+        -0.05, min(rank) - 0.2, max(rank) + 0.2, linestyles="--", colors=c_list[0]
+    )
+
     plt.ylabel("log(K1/K2)")
     plt.xlabel("Rank")
-    plt.title(f'{run_name} ({fold})')
+    plt.title(f"{run_name} ({fold})")
 
-    plt.xlim([min(rank)-0.05,max(rank)+0.05])
-    plt.ylim([min(ratios)-0.2,max(ratios)+0.2])
+    plt.xlim([min(rank) - 0.05, max(rank) + 0.05])
+    plt.ylim([min(ratios) - 0.2, max(ratios) + 0.2])
 
     plt.tight_layout()
-    plt.savefig(f'results/figures/logk_{run_name}_{fold}.png')
-
-
-
+    plt.savefig(f"results/figures/logk_{run_name}_{fold}.png")
 
 
 if __name__ == "__main__":
@@ -251,26 +259,26 @@ if __name__ == "__main__":
     if args.AF == 1:
         if os.path.exists(f"results/most_affine_{args.run_name}.csv"):
             plot_best_chain_guess(args.run_name, "AF")
-            plot_logk(args.run_name,'AF')
+            plot_logk(args.run_name, "AF")
         else:
             plot_best_chain(args.run_name, "AF")
 
     if args.DF == 1:
         if os.path.exists(f"results/most_affine_{args.run_name}.csv"):
             plot_best_chain_guess(args.run_name, "DF")
-            plot_logk(args.run_name,'DF')
+            plot_logk(args.run_name, "DF")
         else:
             plot_best_chain(args.run_name, "DF")
 
     if args.OF == 1:
         if os.path.exists(f"results/most_affine_{args.run_name}.csv"):
             plot_best_chain_guess(args.run_name, "OF")
-            plot_logk(args.run_name,'OF')
+            plot_logk(args.run_name, "OF")
         else:
             plot_best_chain(args.run_name, "OF")
 
     if os.path.exists(f"results/most_affine_{args.run_name}.csv"):
         plot_best_chain_guess(args.run_name, "all")
-        plot_logk(args.run_name,'all')
+        plot_logk(args.run_name, "all")
     else:
         plot_best_chain(args.run_name, "all")
