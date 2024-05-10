@@ -147,7 +147,7 @@ def plot_best_chain_guess(run_name, fold="all"):
         vmax=1,
     )
 
-    if (data.shape[1] - 3) > 0:
+    if (data.shape[1] - 3) >= 0:
         for i in range(data.shape[0]):
             for j in range(data.shape[1]):
                 if not np.isnan(xpos[i][j]):
@@ -224,7 +224,7 @@ def plot_logk(run_name, fold):
     ids = df["ID"].values
     most_affine = pd.read_csv(f"results/most_affine_{run_name}.csv")
 
-    ratios = np.log10(most_affine["K1/K2"].values)
+    ratios = np.log10(most_affine["K2/K1"].values)
     rank = df["Rank"].values
     rank = np.where(rank > 0.5, rank, 1 - rank)
 
@@ -241,7 +241,7 @@ def plot_logk(run_name, fold):
         -0.05, min(rank) - 0.2, max(rank) + 0.2, linestyles="--", colors=c_list[0]
     )
 
-    plt.ylabel("log(K1/K2)")
+    plt.ylabel("log(K2/K1)")
     plt.xlabel("Rank")
     plt.title(f"{run_name} ({fold})")
 
