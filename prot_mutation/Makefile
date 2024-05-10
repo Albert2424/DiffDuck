@@ -1,4 +1,4 @@
-.PHONY: help clean ddi sbatch_docking analysis structures
+.PHONY: help clean ddi sbatch_docking analysis structures plot mutate
 
 help:
 	@echo ''
@@ -44,7 +44,10 @@ mutate:
 	@./codes/run_files/mutate.sh
 
 plot:
-	@./codes/run_files/plot.sh	
+	@./codes/run_files/plot.sh
+
+search:
+	@python codes/search_DB.py	
 
 clean: 
 	@rm -rf protein_structures/*
