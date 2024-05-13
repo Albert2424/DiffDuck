@@ -33,6 +33,32 @@ def read_db(file_path, columns, display_col_names=False):
     df = df[columns]
     return df
 
+
+def seq_diff(s1,s2):
+    aa_mutated = []
+    seq1 = ''
+    seq2 = ''
+    ind = 0
+
+    red = '\033[31m'
+    end = '\033[0m'
+
+    if len(s1) == len(s2):   
+        for a1,a2 in zip(s1, s2):
+            ind += 1
+            if a1!= a2:
+                seq1 += red+a1+end
+                seq2 += red+a2+end
+                aa_mutated.append(ind)
+            else: 
+                seq1 += a1
+                seq2 += a2
+    
+    diff_count = len(aa_mutated)
+
+    return seq1,seq2,aa_mutated,diff_count
+
+
 def seq_similarity(df):
     """
     This function compares the sequences of the different protein chains in the dataframe and prints the ones that are most similar.
@@ -49,9 +75,6 @@ def seq_similarity(df):
     global gl_affinity
     global gl_smiles
 
-    red = '\033[31m'
-    end = '\033[0m'
-
     un_lig = np.unique(list(df['SMILES']))
     lig_list = []
     input_list = []
@@ -65,48 +88,33 @@ def seq_similarity(df):
         kd = list(sel[f"{gl_affinity} mean"])
 
         seq_list = []
-        # aa_list = []
+        aa_list = []
         kds = []
         for s1 in range(len(seq)):
 
             for s2 in range(s1 + 1, len(seq)):
-                diff_count = 0
-                # aa_mutated = 0
-                seq1 = ''
-                seq2 = ''
-                # ind = 0
+                    
+                seq1,seq2,aa_mutated,diff_count = seq_diff(seq[s1],seq[s2])
 
-                if len(seq[s1]) == len(seq[s2]):
-                
-                    for a1,a2 in zip(seq[s1], seq[s2]):
-                        # ind += 1
-                        if a1!= a2:
-                            diff_count += 1
-                            seq1 += red+a1+end
-                            seq2 += red+a2+end
-                            # aa_mutated = ind
-                        else: 
-                            seq1 += a1
-                            seq2 += a2
-                    
-                # diff_count = sum(a1 != a2 for a1, a2 in zip(seq[s1], seq[s2]))
                 if diff_count == 1:
-                    
+                
                     if seq[s1] not in seq_list:
                         seq_list.append(seq[s1])
                         kds.append(kd[s1])
-                        # aa_list.append(aa_mutated)
-
+                        
                     if seq[s2] not in seq_list:
                         seq_list.append(seq[s2])
                         kds.append(kd[s2])
-                        # aa_list.append(aa_mutated)
-
+                    
                         print(prot_names[0].split(' ')[0], lig)
                         print(seq1)
                         print(seq2)
                         print('')
                     
+                    aa_list.append(aa_mutated[0])
+
+
+
 
         if len(seq_list) > 2:
             aux = pd.DataFrame()
@@ -118,15 +126,49 @@ def seq_similarity(df):
                 if len(seq_list[i]) != len(seq_list[0]):
                     stop = True 
             if stop:
-                continue
+                continue          
 
-            # Set an ID for every protein.
+            #Search for the main protein and the mutations
+            mask = [i for i in range(len(seq_list))]
+            aa_mut = []
+            for aa_i in aa_list:
+                mutated = []
+                for s in seq_list:
+                    mutated.append(s[aa_i-1])
+
+                un_mut,counts = np.unique(mutated, return_counts=True)
+                un_mut = list(un_mut)
+                counts = list(counts)
+                if len(un_mut) == 2:
+                    if np.min(counts) == 1:
+                        # print(mutated,prot_names[0].split(' ')[0], aa_i, len(seq_list))
+                        mask.remove(mutated.index(un_mut[counts.index(1)]))
+                        aa_mut.append(mutated[mutated.index(un_mut[counts.index(1)])])
+
+
+
+            # Set an ID for every protein
             id = []
-            for i in range(len(seq_list)):
-                if i == 0:
-                    id.append(prot_names[0].split(' ')[0])
-                else:
-                    id.append(prot_names[0].split(' ')[0]+'_'+f'{i}')
+            if len(mask) == 1:
+                wt = seq_list[mask[0]]
+                aa = 0
+                for i in range(len(seq_list)):
+                    if i == mask[0]:
+                        id.append('WT')
+                    else:
+                        id.append(f'{wt[aa_list[aa]-1]}{aa_list[aa]}{seq_list[i][aa_list[aa]]}')
+                        aa += 1
+
+            else:
+                wt = seq_list[mask[0]]
+                aa = 0
+                for i in range(len(seq_list)):
+                    if i == mask[0]:
+                        id.append('WT(f)')
+                    else:
+                        id.append(f'{wt[aa_list[aa]-1]}{aa_list[aa]}{seq_list[i][aa_list[aa]]}')
+                        aa += 1             
+            
             aux['id'] = id
 
             # Add the affinities
