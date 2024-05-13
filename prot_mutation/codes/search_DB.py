@@ -35,6 +35,17 @@ def read_db(file_path, columns, display_col_names=False):
 
 
 def seq_diff(s1,s2):
+    """
+    This function compares two sequences of amino acids and returns a tuple containing the mutated positions, the first sequence with mutations highlighted, the second sequence with mutations highlighted, and the count of mutations.
+
+    Args:
+    s1 (str): The first sequence of amino acids.
+    s2 (str): The second sequence of amino acids.
+
+    Returns:
+    tuple: A tuple containing the first sequence with mutations highlighted, the second sequence with mutations highlighted, the mutated positions, and the count of mutations.
+
+    """
     aa_mutated = []
     seq1 = ''
     seq2 = ''
@@ -60,14 +71,17 @@ def seq_diff(s1,s2):
 
 
 def seq_similarity(df):
+    
     """
-    This function compares the sequences of the different protein chains in the dataframe and prints the ones that are most similar.
+    This function compares two sequences of amino acids and returns a tuple containing the mutated positions, the first sequence with mutations highlighted, the second sequence with mutations highlighted, and the count of mutations.
 
     Args:
-        df (pd.DataFrame): The dataframe containing the protein sequences and their affinities.
+    df (pandas.DataFrame): The input dataframe containing the sequences, target names, SMILES and affinity values.
 
     Returns:
-        None
+    None: generates csv files which can be used as inputs for folding programs such as AlphaFold. 
+        The csv files are named according to the target name. The corresponding SMILES to every input
+        is stored in the search_smiles.csv file.
 
     """
 
@@ -299,6 +313,28 @@ def clean_df(
 
 
 def mutations_from_db(db_path):
+    """
+    This function reads a database file, cleans the data, and then generates folding inputs for the folding program.
+
+    Args:
+        db_path (str): The path to the database file.
+
+    Returns:
+        None: The function generates csv files which can be used as inputs for folding programs such as AlphaFold.
+        The csv files are named according to the target name. The corresponding SMILES to every input
+        is stored in the search_smiles.csv file.
+
+    Raises:
+        ValueError: If the file format is not supported. Data base must be a tsv or csv.
+
+    Usage:
+    To use this function, simply call it with the path to the database file as an argument.
+
+    Example:
+    ```
+    mutations_from_db('Database_example.tsv')
+    ```
+    """
     global gl_seq
     global gl_affinity
     global gl_cid

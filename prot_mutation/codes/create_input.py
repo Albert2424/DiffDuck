@@ -7,6 +7,20 @@ from argparse import ArgumentParser
 
 
 def args_parser():
+    """
+    This function parses command-line arguments for the script.
+
+    Parameters:
+    -----------
+    None
+
+    Returns:
+    --------
+    args : argparse.Namespace
+        An object containing the parsed command-line arguments.
+        The object has attributes corresponding to the command-line arguments,
+        e.g., args.SMILES and args.run_name.
+    """
     parser = ArgumentParser()
     parser.add_argument(
         "--SMILES",
@@ -26,18 +40,33 @@ def args_parser():
 
 def new_pdb(output_pdb, prot_a, prot_b, separate_chains=[10, 0, 0]):
     """
-    This function concatenates multiple mdtraj objects into a single PDB file spacing them by a factor.
+    This function merges two protein structures (prot_a and prot_b) into a single PDB file.
 
-    Parameters
-    ----------
-    output_pdb : str. The path to the output PDB file.
-    chains : list. A list of mdtraj objects.
-    separate_chains : (list, optional) The distance (in Angstroms) to separate each chain, by default [10, 0, 0]
+    Parameters:
+    -----------
+    output_pdb : str
+        The name of the merged PDB file.
+    prot_a : str
+        The path to the first protein structure file.
+    prot_b : str
+        The path to the second protein structure file.
+    separate_chains : list, optional
+        XYZ of distances to apply between the chains of the two proteins.
+        Default is [10, 0, 0].
 
-    Returns
-    -------
-    None. Generates a pdb file with the merged proteins properly spaced.
+    Returns:
+    --------
+    None
+        The function does not return any value. It saves the merged PDB file.
 
+    Raises:
+    --------
+    Exception
+        If there is an error while loading the protein structures or saving the merged PDB file.
+
+    Example:
+    --------
+    new_pdb("merged_structure.pdb", "prot_a.pdb", "prot_b.pdb")
     """
 
     prot_a = md.load(prot_a)
@@ -61,6 +90,32 @@ def new_pdb(output_pdb, prot_a, prot_b, separate_chains=[10, 0, 0]):
 
 
 def generate_input(structure_dir, smiles, run_name):
+    """
+    This function generates docking input files for a given set of protein structures and a ligand SMILES.
+
+    Parameters:
+    -----------
+    structure_dir : str
+        The directory containing the protein structure files (pdb).
+    smiles : str
+        The canonical SMILES of the ligand.
+    run_name : str
+        The name of the job. This is equivalent to the name of the directory containing the structures
+
+    Returns:
+    --------
+    None
+        The function does not return any value. It generates the docking input files.
+
+    Raises:
+    --------
+    Exception
+        If there is an error while loading the protein structures or saving the merged PDB file.
+
+    Example:
+    --------
+    generate_input("protein_structures/FABP", "OC(=O)c1cccc(O)c1", "FABP")
+    """
 
     # Get all the structures
     folders = ["AF", "DF", "OF"]

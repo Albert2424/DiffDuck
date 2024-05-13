@@ -9,6 +9,22 @@ import matplotlib.patches as mpatches
 
 
 def args_parser():
+    """
+    Parses the command-line arguments for the script.
+
+    Args:
+    None
+
+    Returns:
+    An instance of the ArgumentParser class with the parsed arguments.
+
+    Raises:
+    None
+
+    Example:
+    >>> args = args_parser()
+    >>> print(args.run_name)  # Output: <run_name>
+    """
     parser = ArgumentParser()
     parser.add_argument(
         "--run_name",
@@ -42,6 +58,19 @@ def args_parser():
 
 
 def plot_best_chain(run_name, fold="all"):
+    """
+    Plots the ranked predictions for a given job (run_name) and fold.
+
+    Args:
+    run_name (str): The name of the job.
+    fold (str, optional): The folding program used for the generation of proteins (AF, DF, OF or
+         all which is a mean value of all the available folding results) to plot for. Defaults to "all".
+
+    Returns:
+    None
+
+    This function reads the ranked predictions from a CSV file, creates a heatmap of the rankings, and saves the plot as a PNG file.
+    """
 
     df = pd.read_csv(f"results/ranked_{run_name}_{fold}.csv")
     ids = df["ID"].values
@@ -91,6 +120,26 @@ def plot_best_chain(run_name, fold="all"):
 
 
 def plot_best_chain_guess(run_name, fold="all"):
+    """
+    Plots the ranked predictions for a given job (run_name) and fold. It also adds
+    if the prediction is correct or not.
+
+    Args:
+    run_name (str): The name of the job.
+    fold (str, optional): The folding program used for the generation of proteins (AF, DF, OF or
+         all which is a mean value of all the available folding results) to plot for. Defaults to "all".
+
+    Returns:
+    None
+
+    This function reads the ranked predictions from a CSV file, creates a heatmap of the rankings, and saves the plot as a PNG file.
+    It also adds annotations to the heatmap to indicate the number of predictions with and without affinity.
+
+    The function first reads the ranked predictions from a CSV file and prepares the data for plotting. It then creates a heatmap of the rankings using seaborn's heatmap function. The heatmap is annotated with the number of predictions with and without affinity. Finally, the plot is saved as a PNG file.
+
+    Example:
+    >>> plot_best_chain_guess("FABP", "AF")
+    """
 
     df = pd.read_csv(f"results/ranked_{run_name}_{fold}.csv")
     ids = df["ID"].values
@@ -217,6 +266,25 @@ def plot_best_chain_guess(run_name, fold="all"):
 
 
 def plot_logk(run_name, fold):
+    
+    """
+    Plots a scatter plot of the logarithm of the K2/K1 ratio against the rank of the predictions.
+    The color of each point represents whether the prediction is affine or not.
+
+    Args:
+    run_name (str): The name of the job.
+    fold (str): The folding program used for the generation of proteins.
+
+    Returns:
+    None
+
+    This function reads the ranked predictions from a CSV file, calculates the logarithm of the K2/K1 ratio,
+    and plots a scatter plot of the logarithm of the K2/K1 ratio against the rank of the predictions.
+    The color of each point represents whether the prediction is correct or not.
+
+    Example:
+    >>> plot_logk("FABP", "AF")
+    """
 
     c_list = cm.coolwarm(np.linspace(0, 1, 2))
 
