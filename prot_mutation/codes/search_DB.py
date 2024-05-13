@@ -117,7 +117,7 @@ def seq_similarity(df):
 
 
         if len(seq_list) > 2:
-            aux = pd.DataFrame()
+            aux = pd.DataFrame(columns=['id','sequence'])
             aux['sequence'] = seq_list
             
             # avoid different sequences in the same file.
@@ -141,7 +141,7 @@ def seq_similarity(df):
                 counts = list(counts)
                 if len(un_mut) == 2:
                     if np.min(counts) == 1:
-                        # print(mutated,prot_names[0].split(' ')[0], aa_i, len(seq_list))
+                        print(mutated,prot_names[0].split(' ')[0], aa_i, len(seq_list))
                         mask.remove(mutated.index(un_mut[counts.index(1)]))
                         aa_mut.append(mutated[mutated.index(un_mut[counts.index(1)])])
 
@@ -150,44 +150,45 @@ def seq_similarity(df):
             # Set an ID for every protein
             id = []
             if len(mask) == 1:
+                print(mask[0])
                 wt = seq_list[mask[0]]
                 aa = 0
                 for i in range(len(seq_list)):
                     if i == mask[0]:
                         id.append('WT')
                     else:
-                        id.append(f'{wt[aa_list[aa]-1]}{aa_list[aa]}{seq_list[i][aa_list[aa]]}')
+                        id.append(f'{wt[aa_list[aa]-1]}{aa_list[aa]}{seq_list[i][aa_list[aa]-1]}')
                         aa += 1
 
-            else:
-                wt = seq_list[mask[0]]
-                aa = 0
-                for i in range(len(seq_list)):
-                    if i == mask[0]:
-                        id.append('WT(f)')
-                    else:
-                        id.append(f'{wt[aa_list[aa]-1]}{aa_list[aa]}{seq_list[i][aa_list[aa]]}')
-                        aa += 1             
+            # else:
+            #     wt = seq_list[mask[0]]
+            #     aa = 0
+            #     for i in range(len(seq_list)):
+            #         if i == mask[0]:
+            #             id.append('WT(f)')
+            #         else:
+            #             id.append(f'{wt[aa_list[aa]-1]}{aa_list[aa]}{seq_list[i][aa_list[aa]-1]}')
+            #             aa += 1             
             
-            aux['id'] = id
+                aux['id'] = id
 
-            # Add the affinities
-            aux[f"Affinity"] = kds 
-            
-            # Save the folding inputs in the inputs directory
-            path = f"inputs/folding_{prot_names[0].split(' ')[0]}_input.csv"
-            if path in paths:
-                add = 1
-                # If there are different smiles, add a number at the end.
-                while path in paths: 
-                    path = f"inputs/folding_{prot_names[0].split(' ')[0]}_input{add}.csv"
-                    add +=1
+                # Add the affinities
+                aux[f"Affinity"] = kds 
                 
-            paths.append(path)
-            aux.to_csv(path, index=False)
+                # Save the folding inputs in the inputs directory
+                path = f"inputs/folding_{prot_names[0].split(' ')[0]}_input.csv"
+                if path in paths:
+                    add = 1
+                    # If there are different smiles, add a number at the end.
+                    while path in paths: 
+                        path = f"inputs/folding_{prot_names[0].split(' ')[0]}_input{add}.csv"
+                        add +=1
+                    
+                paths.append(path)
+                aux.to_csv(path, index=False)
 
-            input_list.append(path)
-            lig_list.append(lig)
+                input_list.append(path)
+                lig_list.append(lig)
 
     # Create a file containing all the generated inputs and their smiles for the user to know which smiles corresponds to every folding input
     aux = pd.DataFrame()
